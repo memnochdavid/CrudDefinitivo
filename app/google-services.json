@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "578579758713",
+    "firebase_url": "https://cruddefinitivo-6e69a-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "cruddefinitivo-6e69a",
+    "storage_bucket": "cruddefinitivo-6e69a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578579758713:android:8bb0ec7743e7d5ccbb9ea8",
+        "android_client_info": {
+          "package_name": "com.david.cruddefinitivo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsdQcQiWjNvTLYrtnD4swxrdBxSojWNYw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

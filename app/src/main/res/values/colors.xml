@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="fuego">#8F2626</color>
+    <color name="planta_claro">#60A062</color>
+    <color name="planta">#4CAF50</color>
+    <color name="planta_oscuro">#306D33</color>
+    <color name="agua_claro">#478FE4</color>
+    <color name="agua">#2480ED</color>
+    <color name="agua_oscuro">#1D61B1</color>
+    <color name="electrico">#F8BF00</color>
+    <color name="fantasma">#6F406F</color>
+    <color name="acero">#5FA1B8</color>
+    <color name="psiquico">#ED3F79</color>
+    <color name="hada">#ED6FED</color>
+    <color name="volador">#80B8ED</color>
+    <color name="bicho">#91A112</color>
+    <color name="dragon">#3F51B5</color>
+    <color name="hielo">#3DD7FD</color>
+    <color name="lucha">#FD8000</color>
+    <color name="veneno">#913FCA</color>
+    <color name="normal">#9EA09E</color>
+    <color name="roca">#AEA880</color>
+    <color name="tierra">#905021</color>
+    <color name="siniestro">#4F403F</color>
+    <color name="lista_sin_foco">#370C0C</color>
+    <color name="lista_con_foco">#661111</color>
+    <color name="objeto_lista">#F2D985</color>
+    <color name="transparente">#00D5D5D5</color>
+    <color name="rojo_primario">#8F2626</color>
+    <color name="rojo_claro">#8C2B2B</color>
+    <color name="rojo_muy_claro">#AF4C4C</color>
+    <color name="rojo_oscuro">#420101</color>
+    <color name="rayo_pokeball">#C8FF0000</color>
+    <color name="mensajein">#1F2A30</color>
+    <color name="mensajeout">#05453F</color>
+    <color name="paleta1">#30374E</color>
+    <color name="paleta2">#35313B</color>
+    <color name="paleta3">#443744</color>
+    <color name="paleta4">#603C4B</color>
+    <color name="paleta6">#D4CC8A</color>
+    <color name="paleta7">#8ECE52</color>
+    <color name="paleta8">#028F7C</color>
+    <color name="paleta9">#03443D</color>
+    <color name="paleta10">#492512</color>
+    <color name="paleta11">#2C1001</color>
+
+
+</resources>
+
+    <!--https://paletton.com/#uid=1000u0kqFcOialWmahCvx8hI14i -->
