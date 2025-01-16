@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import com.david.cruddefinitivo.Clase.PokemonFB
 import com.david.cruddefinitivo.Clase.PokemonTipoFB
+import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
 import io.appwrite.models.InputFile
@@ -87,6 +89,9 @@ fun Registra() {
         }
     )
     var scopeUser = rememberCoroutineScope()
+    val context = LocalContext.current
+    var sesion = UsuarioFromKey(usuario_key, refBBDD)
+
 
     ConstraintLayout(
         modifier = Modifier
@@ -207,8 +212,8 @@ fun Registra() {
         Row(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
-                .constrainAs(estrellas){
-                    top.linkTo(spinner_tipos.bottom)
+                .constrainAs(botones){
+                    top.linkTo(estrellas.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
@@ -227,9 +232,12 @@ fun Registra() {
 
                     var identificadorAppWrite = refBBDD.child("equipo").child("pokemon").push().key!!.substring(1, 20) ?: ""
                     //necesario para crear un archivo temporal con la imagen
-                    val inputStream = this.contentResolver.openInputStream(url_foto!!)
+
+                    val inputStream = context.contentResolver.openInputStream(selectedImageUri!!)
                     scopeUser.launch {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
                         try{
+                            var equipo_sesion = sesion.equipo
+
 
                             val file = inputStream.use { input ->
                                 val tempFile = kotlin.io.path.createTempFile(identificadorAppWrite).toFile()
@@ -252,29 +260,42 @@ fun Registra() {
                             link_foto = "https://cloud.appwrite.io/v1/storage/buckets/$appwrite_bucket/files/$identificadorAppWrite/preview?project=$appwrite_project&output=png"
 
                             newPokemon = PokemonFB(
-                                id=identificador_poke,
-                                imagenFB=link_foto,
-                                id_imagen=identificadorAppWrite,
-                                name=nombre,
-                                tipo= listOf(tipo1,tipo2),
-                                num=numero.toInt(),
-                                puntuacion = puntuacion.toFloat())
+                                id = identificador_poke,
+                                imagenFB = link_foto,
+                                id_imagen = identificadorAppWrite,
+                                name = nombre,
+                                tipo = listOf(
+                                    PokemonTipoFB.valueOf(tipo1.uppercase()),
+                                    PokemonTipoFB.valueOf(tipo2.uppercase())
+                                ),
+                                num = numero.toInt(),
+                                puntuacion = puntuacion.toFloat()
+                            )
+                            if(equipo_sesion.size<6){
+                                equipo_sesion.add(newPokemon)
+                                sesion.equipo = equipo_sesion
 
-                            //subimos los datos a firebase
-                            refBBDD.child("equipo").child("pokemon").child(identificador_poke!!).setValue(newPokemon)
+
+                                //subimos los datos a firebase
+                                refBBDD.child("usuarios").child(sesion.key!!).setValue(sesion)
+                            }
+                            else{
+                                Toast.makeText(context, "Ya hay 6 Pokémon en tu equipo!", Toast.LENGTH_SHORT).show()
+                            }
+
 
 
                         }catch (e: Exception){
                             Log.e("UploadError", "Error al subir la imagen: ${e.message}")
                         }finally {
-                            Toast.makeText(this@RegistraActivity, "${newPokemon.name} registrado correctamente", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "${newPokemon.name} registrado correctamente", Toast.LENGTH_SHORT).show()
                         }
                     }
 
 
                 }
             ) {
-                Text("Interacciones")
+                Text("Registrar")
             }
         }
 

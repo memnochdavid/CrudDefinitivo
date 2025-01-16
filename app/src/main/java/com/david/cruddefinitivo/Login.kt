@@ -75,7 +75,6 @@ class LoginActivity : ComponentActivity() {
 
 @Composable
 fun Login() {
-
     var sesionUser = UsuarioFromKey(usuario_key, refBBDD)
 
     //var nick by remember { mutableStateOf(sesionUser.nick) }
