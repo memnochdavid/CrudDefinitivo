@@ -2,6 +2,8 @@ package com.david.cruddefinitivo
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -18,6 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -32,10 +37,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -45,6 +53,10 @@ import com.david.cruddefinitivo.Clase.PokemonFB
 import com.david.cruddefinitivo.Clase.PokemonTipoFB
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
+import io.appwrite.models.InputFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RegistraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +77,7 @@ fun Registra() {
     var numero by remember { mutableStateOf("") }
     var tipo1 by remember { mutableStateOf("") }
     var tipo2 by remember { mutableStateOf("") }
+    var link_foto by remember { mutableStateOf("") }
     var puntuacion by remember { mutableIntStateOf(0) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(
@@ -73,12 +86,13 @@ fun Registra() {
             selectedImageUri = uri
         }
     )
+    var scopeUser = rememberCoroutineScope()
 
     ConstraintLayout(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
     ){
-        val (foto, text_inputs, spinner_tipos,estrellas)=createRefs()
+        val (foto, text_inputs, spinner_tipos,estrellas,botones)=createRefs()
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,16 +179,17 @@ fun Registra() {
         Row(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
+                .fillMaxWidth()
                 .constrainAs(spinner_tipos){
                     top.linkTo(text_inputs.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(estrellas.top)
                 },
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceEvenly
         ){
             SeleccionaTipo(modifier = Modifier.fillMaxWidth(0.4f),tipo1) { tipo1 = it }
-            SeleccionaTipo(modifier = Modifier.fillMaxWidth(0.4f),tipo2) { tipo2 = it }
+            SeleccionaTipo(modifier = Modifier.fillMaxWidth(0.6f),tipo2) { tipo2 = it }
         }
         Row(
             modifier = Modifier
@@ -183,10 +198,84 @@ fun Registra() {
                     top.linkTo(spinner_tipos.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
+                    bottom.linkTo(botones.top)
                 },
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             Estrellas(modifier = Modifier,puntuacion) { puntuacion = it }
+        }
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .constrainAs(estrellas){
+                    top.linkTo(spinner_tipos.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                },
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            Button(
+                modifier = Modifier
+                    .padding(vertical = 8.dp),
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val identificador_poke = refBBDD.child("equipo").child("pokemon").push().key
+
+                    //subimos la imagen a appwrite storage y los datos a firebase
+                    //var identificadorAppWrite = identificador_poke?.substring(1, 20) ?: "" // coge el identificador y lo adapta a appwrite
+
+                    var identificadorAppWrite = refBBDD.child("equipo").child("pokemon").push().key!!.substring(1, 20) ?: ""
+                    //necesario para crear un archivo temporal con la imagen
+                    val inputStream = this.contentResolver.openInputStream(url_foto!!)
+                    scopeUser.launch {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
+                        try{
+
+                            val file = inputStream.use { input ->
+                                val tempFile = kotlin.io.path.createTempFile(identificadorAppWrite).toFile()
+                                if (input != null) {
+                                    tempFile.outputStream().use { output ->
+                                        input.copyTo(output)
+                                    }
+                                }
+                                InputFile.fromFile(tempFile) // tenemos un archivo temporal con la imagen
+                            }
+
+                            withContext(Dispatchers.IO) {
+                                //se sube la imagen a appwrite
+                                storage.createFile(
+                                    bucketId = appwrite_bucket,
+                                    fileId = identificadorAppWrite,
+                                    file = file
+                                )
+                            }
+                            link_foto = "https://cloud.appwrite.io/v1/storage/buckets/$appwrite_bucket/files/$identificadorAppWrite/preview?project=$appwrite_project&output=png"
+
+                            newPokemon = PokemonFB(
+                                id=identificador_poke,
+                                imagenFB=link_foto,
+                                id_imagen=identificadorAppWrite,
+                                name=nombre,
+                                tipo= listOf(tipo1,tipo2),
+                                num=numero.toInt(),
+                                puntuacion = puntuacion.toFloat())
+
+                            //subimos los datos a firebase
+                            refBBDD.child("equipo").child("pokemon").child(identificador_poke!!).setValue(newPokemon)
+
+
+                        }catch (e: Exception){
+                            Log.e("UploadError", "Error al subir la imagen: ${e.message}")
+                        }finally {
+                            Toast.makeText(this@RegistraActivity, "${newPokemon.name} registrado correctamente", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+
+                }
+            ) {
+                Text("Interacciones")
+            }
         }
 
 
@@ -250,7 +339,7 @@ fun SeleccionaTipo(
             },
             modifier = Modifier
                 .menuAnchor()
-                .fillMaxWidth(),
+                .wrapContentWidth(),
             colors = coloresSpinner,
 
             )

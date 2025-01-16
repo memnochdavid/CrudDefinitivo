@@ -4,29 +4,31 @@ import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import java.io.Serializable
 import com.david.cruddefinitivo.ui.theme.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 data class PokemonFB(
-    var num:Int=0,
-    var gen: String="",
-    var foto:Int=0,//soporte local
-    var imagenFB: String? = null,//soporte en la nube
+    var id: String? = null,
+    var imagenFB: String? = null,
+    var id_imagen: String? = null,
     var name: String="",
-    var desc: String="",
-    var tipo: List<PokemonTipoFB> = listOf(),
-    var evos: List<Int> = listOf(),
-    var key: String? = null,
+    var tipo: List<PokemonTipoFB> = mutableListOf(),
+    var num:Int=0,
+    var puntuacion:Float=0f,
+    var fecha_captura:String="",
     var stability:Int=0
-){
+): Serializable{
     constructor(
-        num: Int,
-        gen: String,
-        foto: Int,
         name: String,
-        desc: String,
         tipo: List<PokemonTipoFB>,
-        evos: List<Int>,
+        num:Int,
+        puntuacion:Float,
+        fecha_captura:String,
+    ) : this(null,null, null, name, tipo,num,puntuacion,fecha_captura)
+    init{
+        fecha_captura=getCurrentDate()
+    }
 
-        ) : this(num, gen, foto, null, name, desc, tipo, evos)
 }
 
 
@@ -73,4 +75,9 @@ fun enumTipoToColorTipo(tipo:PokemonTipoFB): Color {
         PokemonTipoFB.FANTASMA -> return color_fantasma
         else -> return color_normal
     }
+}
+fun getCurrentDate(): String {
+    val currentDate = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    return currentDate.format(formatter)
 }
