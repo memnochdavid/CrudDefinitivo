@@ -87,6 +87,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 var equipo_lista: MutableStateFlow<List<PokemonFB>> = MutableStateFlow(emptyList())
+var registrados_lista: MutableStateFlow<List<PokemonFB>> = MutableStateFlow(emptyList())
 var campoBusqueda by mutableStateOf(false)
 var confirmaBusqueda by mutableStateOf(true)
 
@@ -98,6 +99,12 @@ class EquipoActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             val usuario = UsuarioFromKey(usuario_key, refBBDD)
+            LaunchedEffect(key1 = usuario.key) {
+                if (usuario.key != null) {
+                    equipo_lista.value = usuario.equipo
+                    cargaRegistrados()
+                }
+            }
             val equipoState by equipo_lista.collectAsState()
             CrudDefinitivoTheme {
                 MuestraEquipo(
@@ -139,6 +146,9 @@ fun MuestraEquipo(
                         (tipoBuscado2.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado2, ignoreCase = true) })
             }
             confirmaBusqueda = false // Reset shouldFilter after filtering
+        }
+        else{
+            listaFiltrada = equipoPoke
         }
     }
 
@@ -233,7 +243,7 @@ fun MuestraEquipo(
                 {
                     top.linkTo(equipo.bottom)
                     start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+                    end.linkTo(boton_busqueda.start)
                     bottom.linkTo(parent.bottom)
                 }
         ){
@@ -251,9 +261,11 @@ fun MuestraEquipo(
             },
             modifier = Modifier
                 .constrainAs(boton_busqueda) {
+                    //end.linkTo(parent.end)
+                    start.linkTo(boton1.end)
                     end.linkTo(parent.end)
                     if (campoBusqueda) bottom.linkTo(layoutBusqueda.top)
-                    else bottom.linkTo(parent.bottom)
+                    else bottom.linkTo(boton1.bottom)
                 },
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 10.dp

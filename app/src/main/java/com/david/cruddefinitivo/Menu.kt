@@ -18,6 +18,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -60,9 +61,10 @@ class MenuActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             val usuario = UsuarioFromKey(usuario_key, refBBDD)
-            LaunchedEffect(key1 = usuario.key) { // Trigger when usuario.key is available
+            LaunchedEffect(key1 = usuario.key) {
                 if (usuario.key != null) {
                     equipo_lista.value = usuario.equipo
+                    cargaRegistrados()
                 }
             }
             CrudDefinitivoTheme(){
@@ -80,7 +82,7 @@ fun Splash() {
             .fillMaxSize()
             .background(colorResource(id = R.color.black)),
     ) {
-        val (logo, gif, boton_registra,boton_equipo, boton_foro) = createRefs()
+        val (logo, botones, boton_registra,boton_equipo, boton_foro) = createRefs()
         Image(
             painter = painterResource(id = R.drawable.pokemonlogo),
             contentDescription = "Pokemon",
@@ -89,78 +91,53 @@ fun Splash() {
                 .fillMaxWidth()
                 .constrainAs(logo) {
                     top.linkTo(parent.top)
-                    bottom.linkTo(gif.top)
+                    bottom.linkTo(botones.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
         )
-        GifAnimado(
-            R.drawable.splashcolores,
+        Column(
             modifier = androidx.compose.ui.Modifier
-                .constrainAs(gif) {
+                .constrainAs(botones) {
                     top.linkTo(logo.bottom)
-                    bottom.linkTo(boton_registra.top)
+                    bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
-        )
-        Button(
-            modifier = androidx.compose.ui.Modifier
-                .constrainAs(boton_registra) {
-                    top.linkTo(gif.bottom)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(boton_equipo.start)
-                },
-            shape = RoundedCornerShape(10.dp),
-            onClick = {
-                val intent = Intent(context, RegistraActivity::class.java)
-                context.startActivity(intent)
-            }) {
-            Text("PokeRegistro")
-        }
-        Button(
-            modifier = androidx.compose.ui.Modifier
-                .constrainAs(boton_equipo) {
-                    top.linkTo(gif.bottom)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(boton_registra.end)
-                    end.linkTo(parent.end)
-                },
-            shape = RoundedCornerShape(10.dp),
-            onClick = {
-                val intent = Intent(context, EquipoActivity::class.java)
-                context.startActivity(intent)
-            }) {
-            Text("PokeEquipo")
-        }
-        Button(
-            modifier = androidx.compose.ui.Modifier
-                .constrainAs(boton_foro) {
-                    top.linkTo(boton_registra.bottom)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(boton_registra.start)
-                    end.linkTo(boton_registra.end)
-                },
-            shape = RoundedCornerShape(10.dp),
-            onClick = {
-                val intent = Intent(context, ForoActivity::class.java)
-                context.startActivity(intent)
-            }) {
-            Text("PokeForo")
+        ){
+            Button(
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val intent = Intent(context, RegistraActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                Text("PokeRegistro")
+            }
+            Button(
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val intent = Intent(context, EquipoActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                Text("PokeEquipo")
+            }
+            Button(
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val intent = Intent(context, ForoActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                Text("PokeForo")
+            }
+            Button(
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val intent = Intent(context, ListaRegistradosActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                Text("Registrados")
+            }
+
         }
     }
-}
-@Composable
-fun GifAnimado(drawableId: Int, modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier) {
-    Image(
-        painter = rememberDrawablePainter(
-            drawable = getDrawable(
-                LocalContext.current,
-                drawableId
-            )
-        ),
-        contentDescription = "Loading animation",
-        modifier = modifier
-    )
 }
