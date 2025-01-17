@@ -68,11 +68,11 @@ class ListaRegistradosActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             LaunchedEffect(Unit) {
-                registrados_lista.value= mutableListOf()
+                cargaRegistrados()
             }
-            val equipoState by equipo_lista.collectAsState()
+            val registradosState by registrados_lista.collectAsState()
             CrudDefinitivoTheme {
-
+                ListaRegistrados(modifier = Modifier.fillMaxSize(),registradosState = registradosState)
             }
         }
     }
@@ -81,26 +81,26 @@ class ListaRegistradosActivity : ComponentActivity() {
 @Composable
 fun ListaRegistrados(
     modifier: Modifier = Modifier,
-    RegistradosState: List<PokemonFB>,
-    usuario: UserFb,
+    registradosState: List<PokemonFB>,
+    //usuario: UserFb,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val equipoPoke by equipo_lista.collectAsState(initial = RegistradosState)
+    val RegistroPoke by registrados_lista.collectAsState(initial = registradosState)
 
     var textobusqueda by remember { mutableStateOf("") }
     var tipoBuscado1 by remember { mutableStateOf("") }
     var tipoBuscado2 by remember { mutableStateOf("") }
     var byFecha by remember { mutableStateOf(false) }
-    var listaFiltrada by remember { mutableStateOf(equipoPoke) }
+    var listaFiltrada by remember { mutableStateOf(RegistroPoke) }
 
 
-    LaunchedEffect(key1=confirmaBusqueda, key2 = equipoPoke) { // Trigger LaunchedEffect only when shouldFilter changes
+    LaunchedEffect(key1=confirmaBusqueda, key2 = RegistroPoke) { // Trigger LaunchedEffect only when shouldFilter changes
         if (confirmaBusqueda) {
             if(tipoBuscado1.contains("Sin tipo")) tipoBuscado1=""
             if(tipoBuscado2.contains("Sin tipo")) tipoBuscado2=""
 
-            listaFiltrada = equipoPoke.filter { pokemon ->
+            listaFiltrada = RegistroPoke.filter { pokemon ->
                 (textobusqueda.isEmpty() || pokemon.name.contains(textobusqueda, ignoreCase = true)) &&
                         (tipoBuscado1.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado1, ignoreCase = true) }) &&
                         (tipoBuscado2.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado2, ignoreCase = true) })
@@ -108,7 +108,7 @@ fun ListaRegistrados(
             confirmaBusqueda = false // Reset shouldFilter after filtering
         }
         else{
-            listaFiltrada = equipoPoke
+            listaFiltrada = RegistroPoke
         }
     }
 
@@ -131,7 +131,7 @@ fun ListaRegistrados(
                 },
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            text = "EQUIPO"
+            text = "REGISTRADOS"
         )
         LazyColumn(
             modifier = Modifier
@@ -148,16 +148,16 @@ fun ListaRegistrados(
                 items = listaFiltrada, // Use listaFiltrada here
                 key = { pokemon -> pokemon.name } // Use a unique and stable key
             ) { pokemon ->
-                usuario.key?.let { usuario_key ->
+                pokemon.id?.let { pokemon_id ->
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
                             if (it == SwipeToDismissBoxValue.EndToStart) {
                                 scope.launch {
-                                    val updatedEquipo = equipoPoke.filter { it.name != pokemon.name }
+                                    val updatedRegistrados = RegistroPoke.filter { it.name != pokemon.name }
                                     //Log.d("MuestraEquipo", "Updated equipoPoke: ${updatedEquipo.map { it.name }}")
-                                    equipo_lista.emit(updatedEquipo) // Emit the new list
+                                    registrados_lista.emit(updatedRegistrados) // Emit the new list
                                     val updates = hashMapOf<String, Any>(
-                                        "usuarios/$usuario_key/equipo" to updatedEquipo
+                                        "registrados/$pokemon_id" to RegistroPoke
                                     )
                                     refBBDD.updateChildren(updates)
                                         .addOnSuccessListener {
@@ -269,7 +269,7 @@ fun ListaRegistrados(
 
 fun observaRegistrados(): Flow<List<PokemonFB>> {
     return callbackFlow {
-        val listener = refBBDD.child("registrados").child("pokemones")
+        val listener = refBBDD.child("registrados")
             .addValueEventListener(object :
                 ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {

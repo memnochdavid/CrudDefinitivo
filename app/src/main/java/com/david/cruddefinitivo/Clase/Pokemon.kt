@@ -1,5 +1,6 @@
 package com.david.cruddefinitivo.Clase
 
+import android.content.Intent
 import android.os.Parcelable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -40,6 +41,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.wear.compose.material.Text
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.david.cruddefinitivo.FichaPokemonActivity
 import com.david.cruddefinitivo.R
 import com.david.cruddefinitivo.campoBusqueda
 import java.io.Serializable
@@ -134,6 +136,7 @@ fun PokeCard(poke: PokemonFB) {
             stiffness = Spring.StiffnessMedium // Moderate stiffness
         )
     )
+    val context = LocalContext.current
 
     ConstraintLayout(
         modifier = Modifier
@@ -166,6 +169,12 @@ fun PokeCard(poke: PokemonFB) {
                             } finally {
                                 isPressed = false
                             }
+
+                            val intent = Intent(context, FichaPokemonActivity::class.java)
+                            intent.putExtra("pokemon", poke as Serializable)
+                            context.startActivity(intent)
+
+
                         }
                     )
                 }
