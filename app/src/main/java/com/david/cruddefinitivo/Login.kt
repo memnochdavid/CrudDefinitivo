@@ -187,7 +187,7 @@ fun Login() {
                                             sesionUser.pass=password
                                             //Toast.makeText(context, "Login correcto", Toast.LENGTH_SHORT).show()
 
-                                            val intent = Intent(context, RegistraActivity::class.java)
+                                            val intent = Intent(context, MenuActivity::class.java)
                                             intent.putExtra("sesion", checkUser.key)
                                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                             context.startActivity(intent)

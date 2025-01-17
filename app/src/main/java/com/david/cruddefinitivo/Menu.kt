@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat.getDrawable
 import com.david.cruddefinitivo.Clase.UserFb
+import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
 import kotlinx.coroutines.delay
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
@@ -52,11 +54,17 @@ import kotlin.math.sin
 import kotlin.ranges.coerceIn
 
 @SuppressLint("CustomSplashScreen")
-class SplashActivity : ComponentActivity() {
+class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
         setContent {
+            val usuario = UsuarioFromKey(usuario_key, refBBDD)
+            LaunchedEffect(key1 = usuario.key) { // Trigger when usuario.key is available
+                if (usuario.key != null) {
+                    equipo_lista.value = usuario.equipo
+                }
+            }
             CrudDefinitivoTheme(){
                 Splash()
             }
@@ -72,7 +80,7 @@ fun Splash() {
             .fillMaxSize()
             .background(colorResource(id = R.color.black)),
     ) {
-        val (logo, gif, boton_registra,boton_equipo) = createRefs()
+        val (logo, gif, boton_registra,boton_equipo, boton_foro) = createRefs()
         Image(
             painter = painterResource(id = R.drawable.pokemonlogo),
             contentDescription = "Pokemon",
@@ -121,10 +129,25 @@ fun Splash() {
                 },
             shape = RoundedCornerShape(10.dp),
             onClick = {
-                val intent = Intent(context, RegistraActivity::class.java)
+                val intent = Intent(context, EquipoActivity::class.java)
                 context.startActivity(intent)
             }) {
             Text("PokeEquipo")
+        }
+        Button(
+            modifier = androidx.compose.ui.Modifier
+                .constrainAs(boton_foro) {
+                    top.linkTo(boton_registra.bottom)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(boton_registra.start)
+                    end.linkTo(boton_registra.end)
+                },
+            shape = RoundedCornerShape(10.dp),
+            onClick = {
+                val intent = Intent(context, ForoActivity::class.java)
+                context.startActivity(intent)
+            }) {
+            Text("PokeForo")
         }
     }
 }

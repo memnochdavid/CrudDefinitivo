@@ -13,7 +13,7 @@
         android:theme="@style/Theme.CrudDefinitivo"
         tools:targetApi="31">
         <activity
-            android:name=".SplashActivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CrudDefinitivo">
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".MenuActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CrudDefinitivo"/>
@@ -40,6 +40,11 @@
             android:theme="@style/Theme.CrudDefinitivo"/>
         <activity
             android:name=".EquipoActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.CrudDefinitivo"/>
+        <activity
+            android:name=".ForoActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CrudDefinitivo"/>

@@ -33,12 +33,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -77,8 +79,8 @@ fun Registra() {
     var newPokemon= PokemonFB()
     var nombre by remember { mutableStateOf("") }
     var numero by remember { mutableStateOf("") }
-    var tipo1 by remember { mutableStateOf("") }
-    var tipo2 by remember { mutableStateOf("") }
+    var tipo1 by remember { mutableStateOf(PokemonTipoFB.NULL) }
+    var tipo2 by remember { mutableStateOf(PokemonTipoFB.NULL) }
     var link_foto by remember { mutableStateOf("") }
     var puntuacion by remember { mutableIntStateOf(0) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -91,6 +93,10 @@ fun Registra() {
     var scopeUser = rememberCoroutineScope()
     val context = LocalContext.current
     var sesion = UsuarioFromKey(usuario_key, refBBDD)
+    val tipoList = mutableListOf<PokemonTipoFB>()
+    LaunchedEffect(key1 = tipoList) {
+        tipoList
+    }
 
 
     ConstraintLayout(
@@ -218,7 +224,8 @@ fun Registra() {
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 },
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ){
             Button(
                 modifier = Modifier
@@ -259,15 +266,18 @@ fun Registra() {
                             }
                             link_foto = "https://cloud.appwrite.io/v1/storage/buckets/$appwrite_bucket/files/$identificadorAppWrite/preview?project=$appwrite_project&output=png"
 
+
+                            tipoList.add(tipo1)
+                            if (tipo2 != PokemonTipoFB.NULL) {
+                                tipoList.add(tipo2)
+                            }
+
                             newPokemon = PokemonFB(
                                 id = identificador_poke,
                                 imagenFB = link_foto,
                                 id_imagen = identificadorAppWrite,
                                 name = nombre,
-                                tipo = listOf(
-                                    PokemonTipoFB.valueOf(tipo1.uppercase()),
-                                    PokemonTipoFB.valueOf(tipo2.uppercase())
-                                ),
+                                tipo = tipoList,
                                 num = numero.toInt(),
                                 puntuacion = puntuacion.toFloat()
                             )
@@ -289,6 +299,9 @@ fun Registra() {
                             Log.e("UploadError", "Error al subir la imagen: ${e.message}")
                         }finally {
                             Toast.makeText(context, "${newPokemon.name} registrado correctamente", Toast.LENGTH_SHORT).show()
+                            if (context is ComponentActivity) {
+                                context.finish()
+                            }
                         }
                     }
 
@@ -297,6 +310,7 @@ fun Registra() {
             ) {
                 Text("Registrar")
             }
+            BotonAtras()
         }
 
 
@@ -307,28 +321,11 @@ fun Registra() {
 @Composable
 fun SeleccionaTipo(
     modifier: Modifier = Modifier,
-    tipo1: String,
-    onTipoChange: (String) -> Unit,
+    tipo1: PokemonTipoFB,
+    onTipoChange: (PokemonTipoFB) -> Unit,
 ) {
 
-    var selectedTipo by remember {
-        mutableStateOf(
-            when {
-                tipo1.isNotEmpty() -> {
-                    try {
-                        PokemonTipoFB.valueOf(tipo1)
-                    } catch (e: IllegalArgumentException) {
-                        PokemonTipoFB.NULL // Default if mapping fails
-                    }
-                }
-                else -> {
-                    // Default value if both are empty
-                    PokemonTipoFB.NULL
-                }
-            }
-        )
-    }
-
+    var selectedTipo by remember { mutableStateOf(tipo1) }
     var expanded by remember { mutableStateOf(false) }
 
     val coloresSpinner: TextFieldColors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -381,7 +378,7 @@ fun SeleccionaTipo(
                     onClick = {
                         selectedTipo = tipo
                         expanded = false
-                        onTipoChange(tipo.tag)
+                        onTipoChange(tipo)
                     },
                     modifier = Modifier
                         .padding(vertical = 0.dp)

@@ -9,10 +9,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,15 +27,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.wear.compose.material.Text
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import com.david.cruddefinitivo.R
+import com.david.cruddefinitivo.campoBusqueda
 import java.io.Serializable
 import com.david.cruddefinitivo.ui.theme.*
 import java.time.LocalDate
@@ -83,6 +93,7 @@ enum class PokemonTipoFB(val tag: String) {
     FANTASMA("fantasma"),
     NULL("null");
 }
+
 fun enumTipoToColorTipo(tipo:PokemonTipoFB): Color {
     when (tipo) {
         PokemonTipoFB.PLANTA -> return color_planta
@@ -113,7 +124,7 @@ fun getCurrentDate(): String {
 }
 
 @Composable
-fun PokeCard(poke: PokemonFB){
+fun PokeCard(poke: PokemonFB) {
     var isPressed by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val scale = animateFloatAsState(
@@ -123,11 +134,13 @@ fun PokeCard(poke: PokemonFB){
             stiffness = Spring.StiffnessMedium // Moderate stiffness
         )
     )
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val(foto,forma)=createRefs()
+        val (pokeball, pokemonImage, numero, pokemonName, tipo1, tipo2, estrellas) = createRefs()
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,8 +148,7 @@ fun PokeCard(poke: PokemonFB){
                 .scale(scale.value)
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = null, // Remove default ripple effect
-
+                    indication = null,
                     onClick = {
 
                     }
@@ -145,57 +157,211 @@ fun PokeCard(poke: PokemonFB){
                     interactionSource = interactionSource,
                     indication = null
                 )
-                .pointerInput(Unit) {//lo que hace al pulsar en el Card()
+                .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = {
-
-
                             isPressed = true
                             try {
                                 awaitRelease()
                             } finally {
-                                isPressed = false // Reset isPressed in finally block
+                                isPressed = false
                             }
-
                         }
                     )
                 }
         ) {
+            var num = "${(poke.num)}"
+            if (num.length == 1) num = "00${(poke.num)}"
+            else if (num.length == 2) num = "0${(poke.num)}"
+
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     //.background(colorResource(R.color.objeto_lista))
                     .padding(end = 30.dp)
             ) {
-                //imagen remota
-                AsyncImage(
+
+                Image(
+                    painter = painterResource(id = R.drawable.pokeball_icon),
+                    contentDescription = "Pokeball",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(5.dp)
+                        .constrainAs(pokeball) {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                        }
+                )
+
+                val painter = rememberAsyncImagePainter(
                     model = poke.imagenFB,
-                    contentDescription = "Pokemon Image",
                     contentScale = ContentScale.Crop,
+                )
+
+                Image(
+                    painter = painter,
+                    contentDescription = "Pokemon Image",
                     modifier = Modifier
                         .size(100.dp)
                         .fillMaxSize()
-                        .constrainAs(foto) {
+                        .constrainAs(pokemonImage) {
                             start.linkTo(parent.start)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
                         }
                 )
-                Text(
-                    text = poke.name,
+                androidx.compose.material3.Text(
+                    text = "#$num",
                     //color = Color.Black,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(start = 15.dp)
-                        .constrainAs(forma) {
-                            start.linkTo(foto.end)
+                        .constrainAs(numero) {
+                            start.linkTo(pokemonImage.end)
                             top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
+                            bottom.linkTo(tipo1.top)
+                            end.linkTo(pokemonName.start)
+                        }
+                )
+                Text(
+                    text = poke.name,
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(start = 20.dp)
+                        .constrainAs(pokemonName) {
+                            start.linkTo(numero.end)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(tipo1.top)
                             end.linkTo(parent.end)
                         }
                 )
+
+                EstrellasVisualizacion(
+                    modifier = Modifier
+                        .constrainAs(estrellas) {
+                            start.linkTo(numero.start)
+                            end.linkTo(parent.end)
+                            top.linkTo(pokemonName.bottom)
+                            bottom.linkTo(tipo1.top)
+                        },
+                    puntuacion = poke.puntuacion
+                )
+
+                if (poke.tipo.size == 1) {
+                    Image(
+                        painter = painterResource(id = enumToDrawableFB(poke.tipo[0])),
+                        contentDescription = "Tipo 1",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(25.dp)
+                            .constrainAs(tipo1) {
+                                start.linkTo(numero.start)
+                                bottom.linkTo(parent.bottom)
+                                top.linkTo(pokemonName.bottom)
+                                end.linkTo(pokemonName.end)
+                            }
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = enumToDrawableFB(poke.tipo[0])),
+                        contentDescription = "Tipo 1",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(25.dp)
+                            .constrainAs(tipo1) {
+                                start.linkTo(numero.start)
+                                bottom.linkTo(parent.bottom)
+                                top.linkTo(estrellas.bottom)
+                                end.linkTo(tipo2.start)
+                            }
+                    )
+                    Image(
+                        painter = painterResource(id = enumToDrawableFB(poke.tipo[1])),
+                        contentDescription = "Tipo 2",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(25.dp)
+                            .constrainAs(tipo2) {
+                                start.linkTo(tipo1.end)
+                                bottom.linkTo(parent.bottom)
+                                top.linkTo(estrellas.bottom)
+                                end.linkTo(pokemonName.end)
+                            }
+                    )
+                }
             }
         }
     }
 }
+@Composable
+fun EstrellasVisualizacion(
+    modifier: Modifier = Modifier,
+    puntuacion: Float,
+) {
+    val puntuacionEntera = puntuacion.toInt()
+    val decimal = puntuacion - puntuacionEntera
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        for (i in 1..5) {
+            val starIcon = when {
+                i <= puntuacionEntera -> R.drawable.star_full
+                i == puntuacionEntera + 1 && decimal >= 0.5f -> R.drawable.star_half
+                else -> R.drawable.star_empty
+            }
+            Image(
+                painter = painterResource(starIcon),
+                contentDescription = "Star $i",
+                modifier = Modifier
+                    .size(24.dp)
+            )
+        }
+    }
+}
+
+
+
+fun enumToDrawableFB(tipo:PokemonTipoFB):Int{
+    return when(tipo){
+        PokemonTipoFB.PLANTA -> R.drawable.planta
+        PokemonTipoFB.AGUA -> R.drawable.agua
+        PokemonTipoFB.FUEGO -> R.drawable.fuego
+        PokemonTipoFB.LUCHA -> R.drawable.lucha
+        PokemonTipoFB.VENENO -> R.drawable.veneno
+        PokemonTipoFB.ACERO -> R.drawable.acero
+        PokemonTipoFB.BICHO -> R.drawable.bicho
+        PokemonTipoFB.DRAGON -> R.drawable.dragon
+        PokemonTipoFB.ELECTRICO -> R.drawable.electrico
+        PokemonTipoFB.HADA -> R.drawable.hada
+        PokemonTipoFB.HIELO -> R.drawable.hielo
+        PokemonTipoFB.PSIQUICO -> R.drawable.psiquico
+        PokemonTipoFB.ROCA -> R.drawable.roca
+        PokemonTipoFB.TIERRA -> R.drawable.tierra
+        PokemonTipoFB.SINIESTRO -> R.drawable.siniestro
+        PokemonTipoFB.NORMAL -> R.drawable.normal
+        PokemonTipoFB.VOLADOR -> R.drawable.volador
+        PokemonTipoFB.FANTASMA -> R.drawable.fantasma
+        else -> { R.drawable.fantasma}
+    }
+}
+@Preview(showBackground = true,widthDp = 350, heightDp = 600)
+@Composable
+fun GreetingPreview9() {
+    val poke = PokemonFB(
+        imagenFB = "https://cloud.appwrite.io/v1/storage/buckets/674f4717002b4ea1e2c2/files/OGnfM2kVtUcjHujqVAU/preview?project=674f4655000119d78457",
+        name="Pikachu",
+        tipo=listOf(PokemonTipoFB.ELECTRICO),
+        num=1,
+        puntuacion =3f
+    )
+    PokeCard(poke)
+}
+
