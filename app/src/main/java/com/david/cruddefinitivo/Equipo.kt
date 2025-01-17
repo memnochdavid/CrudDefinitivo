@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -122,6 +124,7 @@ fun MuestraEquipo(
     var textobusqueda by remember { mutableStateOf("") }
     var tipoBuscado1 by remember { mutableStateOf("") }
     var tipoBuscado2 by remember { mutableStateOf("") }
+    var byFecha by remember { mutableStateOf(false) }
     var listaFiltrada by remember { mutableStateOf(equipoPoke) }
 
 
@@ -281,9 +284,11 @@ fun MuestraEquipo(
                     textobusqueda,
                     tipoBuscado1,
                     tipoBuscado2,
+                    byFecha,
                     { textobusqueda = it },
                     { tipoBuscado1 = it },
-                    { tipoBuscado2 = it }
+                    { tipoBuscado2 = it },
+                    { byFecha = it }
                 )
             }
         }
@@ -294,10 +299,11 @@ fun ContenidoMenuBusqueda(
     textobusqueda: String,
     tipoBuscado1: String,
     tipoBuscado2: String,
+    byFecha: Boolean,
     textobusquedaOnChange: (String) -> Unit,
     onTipoBuscado1Change: (String) -> Unit,
     onTipoBuscado2Change: (String) -> Unit,
-
+    onByFechaChange: (Boolean) -> Unit,
     ){
     val scope= rememberCoroutineScope()
     Column(
@@ -320,6 +326,14 @@ fun ContenidoMenuBusqueda(
             ){
 
                 BusquedaNombre(textobusqueda) { newValue -> textobusquedaOnChange(newValue) }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.25f),//weight horizontal
+            ){
+                OrdenaByFecha(byFecha) { newValue -> }
+
             }
         }
         //tipos
@@ -492,7 +506,34 @@ fun BusquedaTipo(
     }
 }
 
+@Composable
+fun OrdenaByFecha(
+    byFecha: Boolean,
+    onByFechaChange: (Boolean) -> Unit
+){
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Text(
+            text = "Fecha",
+            color = Color.Black
+        )
+        Checkbox(
+            checked = byFecha,
+            onCheckedChange = { newValue -> onByFechaChange(newValue) },
+            colors = CheckboxDefaults.colors(
+                checkedColor = colorResource(R.color.white),
+                uncheckedColor = colorResource(R.color.white),
+                checkmarkColor = Color.Green
+            )
+        )
+    }
 
+
+}
 
 
 
