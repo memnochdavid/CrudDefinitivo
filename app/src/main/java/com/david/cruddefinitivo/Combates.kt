@@ -2,8 +2,6 @@ package com.david.cruddefinitivo
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Spring
@@ -15,11 +13,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -35,7 +37,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,8 +52,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -61,19 +60,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.david.cruddefinitivo.Clase.Combate
-import com.david.cruddefinitivo.Clase.PokemonFB
-import com.david.cruddefinitivo.Clase.PokemonTipoFB
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
-import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.Clase.fetchAllUsers
 import com.google.firebase.database.DatabaseReference
-import io.appwrite.models.InputFile
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 var id_receptor by mutableStateOf("")
 
@@ -430,11 +425,23 @@ fun MuestraPalmares() {
                         end.linkTo(parent.end)
                         top.linkTo(titulo.bottom)
                         bottom.linkTo(boton1.top)
-                    }
+                    },
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
             ) {
                 items(combates) { combate ->
-                    Text(text = combate.toString())
+                    CombateCard(combate)
                 }
+            }
+            Row(
+                modifier = Modifier
+                    .constrainAs(boton1) {
+                        top.linkTo(listaCombates.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }
+            ){
+                BotonAtras()
             }
         }
 
@@ -443,7 +450,58 @@ fun MuestraPalmares() {
 }
 
 @Composable
-fun CombateCard(asd){
+fun CombateCard(combate: Combate){
+    val messageDate = Date(combate.fecha)
+
+    // Format the date
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val fullDateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val todayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    val today = todayFormat.format(Date())
+    val messageDay = todayFormat.format(messageDate)
+
+    // Determine if the message is from today
+    val fecha_combate = if (today == messageDay) {
+        timeFormat.format(messageDate)
+    } else {
+        fullDateFormat.format(messageDate)
+    }
+    Card(
+        modifier = Modifier
+            .wrapContentWidth()
+            .fillMaxHeight()
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .wrapContentHeight()
+        ) {
+            Text(text = UsuarioFromKey(combate.usuario1, refBBDD).nick)
+            Text(text = " VS ")
+            Text(text = UsuarioFromKey(combate.usuario2, refBBDD).nick)
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(
+            modifier = Modifier
+                .wrapContentHeight()
+                .wrapContentWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = fecha_combate,
+                fontSize = 8.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+        ) {
+            Text(text = "Vencedor")
+            Text(text = UsuarioFromKey(combate.vencedor, refBBDD).nick)
+        }
+    }
 
 }
 
