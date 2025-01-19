@@ -63,8 +63,21 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CrudDefinitivo"/>
-
-
+        <activity
+            android:name=".UsuariosActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.CrudDefinitivo"/>
+        <activity
+            android:name=".CombatesActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.CrudDefinitivo"/>
+        <activity
+            android:name=".PalmaresActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.CrudDefinitivo"/>
     </application>
 
 </manifest>

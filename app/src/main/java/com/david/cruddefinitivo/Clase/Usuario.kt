@@ -186,4 +186,26 @@ suspend fun fetchUserData(usuario_key: String, refBBDD: DatabaseReference): User
         }
     }
 }
-
+suspend fun fetchAllUsers(refBBDD: DatabaseReference): MutableList<UserFb> {
+    return suspendCoroutine { continuation ->
+        refBBDD.child("usuarios").get().addOnSuccessListener { snapshot ->
+            val users = mutableListOf<UserFb>()
+            for (userSnapshot in snapshot.children) {
+                val equipo = userSnapshot.child("equipo").getValue(object : GenericTypeIndicator<MutableList<PokemonFB>>() {})
+                    ?: mutableListOf()
+                val user = UserFb(
+                    nick = userSnapshot.child("nick").value.toString(),
+                    email = userSnapshot.child("email").value.toString(),
+                    pass = userSnapshot.child("pass").value.toString(),
+                    avatar = userSnapshot.child("avatar").value.toString(),
+                    key = userSnapshot.child("key").value.toString(),
+                    equipo = equipo
+                )
+                users.add(user)
+            }
+            continuation.resume(users)
+        }.addOnFailureListener { exception ->
+            continuation.resumeWithException(exception)
+        }
+    }
+}

@@ -97,8 +97,6 @@ fun Registra() {
     LaunchedEffect(key1 = tipoList) {
         tipoList
     }
-
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize(),

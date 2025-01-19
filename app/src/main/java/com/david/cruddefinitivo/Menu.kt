@@ -137,6 +137,22 @@ fun Splash() {
                 }) {
                 Text("Registrados")
             }
+            Button(
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val intent = Intent(context, UsuariosActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                Text("Retar a Usuario")
+            }
+            Button(
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    val intent = Intent(context, PalmaresActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                Text("Palmarés")
+            }
 
         }
     }

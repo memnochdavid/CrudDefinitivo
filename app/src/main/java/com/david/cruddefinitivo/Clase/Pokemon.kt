@@ -361,6 +361,7 @@ fun enumToDrawableFB(tipo:PokemonTipoFB):Int{
         else -> { R.drawable.fantasma}
     }
 }
+
 @Preview(showBackground = true,widthDp = 350, heightDp = 600)
 @Composable
 fun GreetingPreview9() {
