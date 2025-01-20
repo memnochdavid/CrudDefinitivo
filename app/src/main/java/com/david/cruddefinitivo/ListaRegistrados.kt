@@ -52,6 +52,7 @@ import com.david.cruddefinitivo.Clase.PokemonFB
 import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
+import com.david.cruddefinitivo.ui.theme.Pink40
 import com.david.cruddefinitivo.ui.theme.Purple40
 import com.david.cruddefinitivo.ui.theme.Purple80
 import com.google.firebase.database.DataSnapshot
@@ -254,7 +255,7 @@ fun ListaRegistrados(
         if (campoBusqueda || alturaCampoBusqueda > 0f) {
             Row (
                 modifier = Modifier
-                    .background(colorResource(R.color.rojo_primario))
+                    .background(Pink40)
                     .constrainAs(layoutBusqueda) {
                         //top.linkTo(parent.top)
                         start.linkTo(parent.start)

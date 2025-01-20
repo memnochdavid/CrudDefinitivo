@@ -153,6 +153,7 @@ fun MuestraUsuarios(
             val (listaUsuarios, boton1, boton2, titulo) = createRefs()
             Text(
                 modifier = Modifier
+                    .fillMaxHeight(0.1f)
                     .constrainAs(titulo) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -168,7 +169,7 @@ fun MuestraUsuarios(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    //.fillMaxHeight(0.9f)
+                    .fillMaxHeight(0.8f)
                     .constrainAs(listaUsuarios) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -186,8 +187,9 @@ fun MuestraUsuarios(
             }
             Row(
                 modifier = Modifier
+                    .fillMaxHeight(0.1f)
                     .constrainAs(boton1) {
-                        top.linkTo(listaUsuarios.bottom)
+                        //top.linkTo(listaUsuarios.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         bottom.linkTo(parent.bottom)

@@ -291,7 +291,7 @@ fun MuestraEquipo(
         if (campoBusqueda || alturaCampoBusqueda > 0f) {
             Row (
                 modifier = Modifier
-                    .background(colorResource(R.color.rojo_primario))
+                    .background(Pink40)
                     .constrainAs(layoutBusqueda) {
                         //top.linkTo(parent.top)
                         start.linkTo(parent.start)

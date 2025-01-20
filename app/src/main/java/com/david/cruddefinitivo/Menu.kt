@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -39,7 +40,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat.getDrawable
 import com.david.cruddefinitivo.Clase.UserFb
@@ -87,24 +91,40 @@ fun Splash() {
             .fillMaxSize()
             .background(colorResource(id = R.color.black)),
     ) {
-        val (logo, botones, boton_registra,boton_equipo, boton_foro) = createRefs()
+        val (logo, botones, texto) = createRefs()
         Image(
             painter = painterResource(id = R.drawable.pokemonlogo),
             contentDescription = "Pokemon",
-            modifier = androidx.compose.ui.Modifier
+            modifier = Modifier
                 .padding(start = 15.dp,end = 15.dp)
                 .fillMaxWidth()
                 .constrainAs(logo) {
                     top.linkTo(parent.top)
-                    bottom.linkTo(botones.top)
+                    bottom.linkTo(texto.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
         )
-        Column(
-            modifier = androidx.compose.ui.Modifier
-                .constrainAs(botones) {
+        Text(
+            text = "CRUD definitivo",
+            textAlign = TextAlign.Center,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(texto) {
                     top.linkTo(logo.bottom)
+                    bottom.linkTo(botones.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        )
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+                .constrainAs(botones) {
+                    top.linkTo(texto.bottom)
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
