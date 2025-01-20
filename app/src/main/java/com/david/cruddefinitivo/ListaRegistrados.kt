@@ -168,16 +168,13 @@ fun ListaRegistrados(
             ) { pokemon ->
                 pokemon.id?.let { pokemon_id ->
                     val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = {
+                        confirmValueChange = { it ->
                             if (it == SwipeToDismissBoxValue.EndToStart) {
                                 scope.launch {
-                                    val updatedRegistrados = RegistroPoke.filter { it.name != pokemon.name }
-                                    //Log.d("MuestraEquipo", "Updated equipoPoke: ${updatedEquipo.map { it.name }}")
+                                    val updatedRegistrados = RegistroPoke.filter { it.id != pokemon.id }
                                     registrados_lista.emit(updatedRegistrados) // Emit the new list
-                                    val updates = hashMapOf<String, Any>(
-                                        "registrados/$pokemon_id" to RegistroPoke
-                                    )
-                                    refBBDD.updateChildren(updates)
+                                    listaFiltrada = updatedRegistrados
+                                    refBBDD.child("registrados").child(pokemon_id).removeValue()
                                         .addOnSuccessListener {
                                             Toast.makeText(context, "Has liberado a ${pokemon.name}", Toast.LENGTH_SHORT).show()
                                         }
