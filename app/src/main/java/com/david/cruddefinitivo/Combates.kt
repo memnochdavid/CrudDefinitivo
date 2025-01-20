@@ -2,6 +2,7 @@ package com.david.cruddefinitivo
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Spring
@@ -29,14 +30,20 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,7 +58,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -60,10 +69,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.david.cruddefinitivo.Clase.Combate
+import com.david.cruddefinitivo.Clase.PokeCard
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.fetchAllUsers
+import com.david.cruddefinitivo.ui.theme.Purple40
 import com.google.firebase.database.DatabaseReference
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,6 +94,7 @@ class UsuariosActivity : ComponentActivity() {
                     modifier = Modifier
                         //.background(colorResource(R.color.lista_con_foco))
                         .fillMaxSize()
+                        .background(Purple40)
                         .padding(vertical = 50.dp)
                 ) { selectedUser ->
                     id_receptor = selectedUser.key.toString()
@@ -285,8 +298,10 @@ fun RegistraCombate(){
     val combatiente2 = UsuarioFromKey(id_receptor, refBBDD)
     var click_dummy by remember { mutableStateOf("") }
     var ganador by remember { mutableStateOf(UserFb()) }
+    val context= LocalContext.current
     Column(
         modifier = Modifier
+            .background(Purple40)
             .padding(top = 16.dp)
             .fillMaxSize(),
         verticalArrangement = androidx.compose.foundation.layout.Arrangement.Top
@@ -316,7 +331,15 @@ fun RegistraCombate(){
             onClick = {
                 var combate = Combate(combatiente1.key!!, combatiente2.key!!, ganador.key!!)
                 //Log.d("combate", combate.toString())
-                refBBDD.child("combates").child(combate.id).child(combate.fecha.toString()).setValue(combate)
+                try {
+                    refBBDD.child("combates").child(combate.id).child(combate.fecha.toString()).setValue(combate)
+                }
+                catch (e:Exception){
+                    Toast.makeText(context, "Error al guardar combate", Toast.LENGTH_SHORT).show()
+                }
+                finally {
+                    Toast.makeText(context, "Combate guardado", Toast.LENGTH_SHORT).show()
+                }
             }
         ) {
             Text("Guardar Combate")
@@ -387,14 +410,16 @@ fun SeleccionaWinner(
 fun MuestraPalmares() {
     var combates by remember { mutableStateOf<List<Combate>>(emptyList()) }
     val scope = rememberCoroutineScope()
+    val context= LocalContext.current
 
-    LaunchedEffect(key1 = refBBDD) {
+    LaunchedEffect(combates) {
         scope.launch {
             combates = cargaPalmares(refBBDD, usuario_key)
         }
     }
     Box(
         modifier = Modifier
+            .background(Purple40)
             .fillMaxSize()
     ) {
         ConstraintLayout(
@@ -402,20 +427,82 @@ fun MuestraPalmares() {
                 .wrapContentHeight()
                 .fillMaxWidth()
         ) {
-            val (listaCombates, boton1, boton2, titulo) = createRefs()
+            val (listaCombates, boton1, titulo) = createRefs()
             Text(
                 modifier = Modifier
+                    .fillMaxHeight(0.1f)
                     .constrainAs(titulo) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(listaCombates.top)
                     },
-                //color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 text = "Mi Palmarés"
             )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f)
+                    .constrainAs(listaCombates) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(titulo.bottom)
+                        bottom.linkTo(boton1.top)
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(
+                    items = combates,
+                    key = { combate -> combate.fecha }
+                ) { combate ->
+                    combate.id.let { id ->
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = {
+                                if (it == SwipeToDismissBoxValue.EndToStart) {
+                                    scope.launch {
+                                        val combateRef = refBBDD.child("combates").child(id).child(combate.fecha.toString())
+                                        //se actualiza combates
+                                        combates = cargaPalmares(refBBDD, usuario_key)
+                                        combateRef.removeValue()
+                                            .addOnSuccessListener {
+                                                Toast.makeText(context, "Has borrado el combate", Toast.LENGTH_SHORT).show()
+                                            }
+                                            .addOnFailureListener {}
+                                    }
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                        )
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            enableDismissFromEndToStart = true,
+                            enableDismissFromStartToEnd = false,
+                            backgroundContent = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 20.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Borrar",
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                        ) {
+                            CombateCard(combate)
+                        }
+                    }
+                }
+            }
+            //////////////////////////
+            /*
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -432,8 +519,11 @@ fun MuestraPalmares() {
                     CombateCard(combate)
                 }
             }
+            */
+            ///
             Row(
                 modifier = Modifier
+                    .fillMaxHeight(0.1f)
                     .constrainAs(boton1) {
                         top.linkTo(listaCombates.bottom)
                         start.linkTo(parent.start)
@@ -453,7 +543,6 @@ fun MuestraPalmares() {
 fun CombateCard(combate: Combate){
     val messageDate = Date(combate.fecha)
 
-    // Format the date
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val fullDateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     val todayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -461,21 +550,61 @@ fun CombateCard(combate: Combate){
     val today = todayFormat.format(Date())
     val messageDay = todayFormat.format(messageDate)
 
-    // Determine if the message is from today
     val fecha_combate = if (today == messageDay) {
         timeFormat.format(messageDate)
     } else {
         fullDateFormat.format(messageDate)
     }
+
+    var isPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val scale = animateFloatAsState(
+        targetValue = if (isPressed) 0.90f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy, // Moderate bouncing
+            stiffness = Spring.StiffnessMedium // Moderate stiffness
+        )
+    )
+
     Card(
         modifier = Modifier
-            .wrapContentWidth()
+            .fillMaxWidth(0.5f)
             .fillMaxHeight()
-            .padding(8.dp)
+            .scale(scale.value)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = {
+
+                }
+            )
+            .indication(
+                interactionSource = interactionSource,
+                indication = null
+            )
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isPressed = true
+                        try {
+                            awaitRelease()
+                        } finally {
+                            isPressed = false
+                        }
+
+
+
+
+                    }
+                )
+            }
+            .padding(vertical = 16.dp, horizontal = 8.dp),
     ) {
         Row(
             modifier = Modifier
                 .wrapContentHeight()
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(text = UsuarioFromKey(combate.usuario1, refBBDD).nick)
             Text(text = " VS ")
@@ -485,8 +614,8 @@ fun CombateCard(combate: Combate){
         Row(
             modifier = Modifier
                 .wrapContentHeight()
-                .wrapContentWidth(),
-            horizontalArrangement = Arrangement.End
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             Text(
                 text = fecha_combate,
@@ -497,6 +626,8 @@ fun CombateCard(combate: Combate){
         Column(
             modifier = Modifier
                 .wrapContentHeight()
+                .fillMaxWidth(),
+            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
         ) {
             Text(text = "Vencedor")
             Text(text = UsuarioFromKey(combate.vencedor, refBBDD).nick)
@@ -513,13 +644,13 @@ suspend fun cargaPalmares(refBBDD: DatabaseReference, idUser: String): List<Comb
         refBBDD.child("combates").get().addOnSuccessListener { snapshot ->
             val combates = mutableListOf<Combate>()
             if (snapshot.exists()) {
-                // Iterate through all combate entries
+
                 snapshot.children.forEach { combateEntry ->
-                    // Iterate through all battles in the current combate entry
+
                     combateEntry.children.forEach { battleSnapshot ->
                         val combate = battleSnapshot.getValue(Combate::class.java)
                         if (combate != null) {
-                            // Check if the current user is involved in the battle
+
                             if (combate.usuario1 == idUser || combate.usuario2 == idUser) {
                                 combates.add(combate)
                             }

@@ -83,6 +83,7 @@ import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
+import com.david.cruddefinitivo.ui.theme.Purple40
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -109,6 +110,7 @@ class EquipoActivity : ComponentActivity() {
             CrudDefinitivoTheme {
                 MuestraEquipo(
                     modifier = Modifier
+                        .background(Purple40)
                         .fillMaxSize(),
                     usuario = usuario,
                     equipoState = equipoState

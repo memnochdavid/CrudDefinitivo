@@ -51,6 +51,7 @@ import com.david.cruddefinitivo.Clase.PokemonFB
 import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
+import com.david.cruddefinitivo.ui.theme.Purple40
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -72,7 +73,11 @@ class ListaRegistradosActivity : ComponentActivity() {
             }
             val registradosState by registrados_lista.collectAsState()
             CrudDefinitivoTheme {
-                ListaRegistrados(modifier = Modifier.fillMaxSize(),registradosState = registradosState)
+                ListaRegistrados(
+                    modifier = Modifier
+                        .background(Purple40)
+                        .fillMaxSize(),
+                    registradosState = registradosState)
             }
         }
     }

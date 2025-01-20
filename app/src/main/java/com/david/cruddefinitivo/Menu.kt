@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -77,8 +78,12 @@ class MenuActivity : ComponentActivity() {
 @Composable
 fun Splash() {
     val context = LocalContext.current
+    val shape = RoundedCornerShape(10.dp)
+    val modifier = Modifier
+        .fillMaxWidth(0.5f)
+
     ConstraintLayout(
-        modifier = androidx.compose.ui.Modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.black)),
     ) {
@@ -106,51 +111,63 @@ fun Splash() {
                 }
         ){
             Button(
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
                 onClick = {
                     val intent = Intent(context, RegistraActivity::class.java)
                     context.startActivity(intent)
-                }) {
+                },
+                modifier = modifier
+            ){
                 Text("PokeRegistro")
             }
             Button(
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
                 onClick = {
                     val intent = Intent(context, EquipoActivity::class.java)
                     context.startActivity(intent)
-                }) {
+                },
+                modifier = modifier
+            ) {
                 Text("PokeEquipo")
             }
             Button(
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
                 onClick = {
                     val intent = Intent(context, ForoActivity::class.java)
                     context.startActivity(intent)
-                }) {
+                },
+                modifier = modifier
+            ) {
                 Text("PokeForo")
             }
             Button(
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
                 onClick = {
                     val intent = Intent(context, ListaRegistradosActivity::class.java)
                     context.startActivity(intent)
-                }) {
+                },
+                modifier = modifier
+            ) {
                 Text("Registrados")
             }
             Button(
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
                 onClick = {
                     val intent = Intent(context, UsuariosActivity::class.java)
                     context.startActivity(intent)
-                }) {
+                },
+                modifier = modifier
+            ) {
                 Text("Retar a Usuario")
             }
             Button(
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
                 onClick = {
                     val intent = Intent(context, PalmaresActivity::class.java)
                     context.startActivity(intent)
-                }) {
+                },
+                modifier = modifier
+            ) {
                 Text("Palmarés")
             }
 
