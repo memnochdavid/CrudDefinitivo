@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -52,6 +53,7 @@ import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
 import com.david.cruddefinitivo.ui.theme.Purple40
+import com.david.cruddefinitivo.ui.theme.Purple80
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -100,7 +102,14 @@ fun ListaRegistrados(
     var listaFiltrada by remember { mutableStateOf(RegistroPoke) }
 
 
-    LaunchedEffect(key1=confirmaBusqueda, key2 = RegistroPoke) { // Trigger LaunchedEffect only when shouldFilter changes
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = Purple80,
+        contentColor = Color.White
+    )
+
+
+    LaunchedEffect(key1=confirmaBusqueda) {
         if (confirmaBusqueda) {
             if(tipoBuscado1.contains("Sin tipo")) tipoBuscado1=""
             if(tipoBuscado2.contains("Sin tipo")) tipoBuscado2=""
@@ -110,12 +119,16 @@ fun ListaRegistrados(
                         (tipoBuscado1.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado1, ignoreCase = true) }) &&
                         (tipoBuscado2.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado2, ignoreCase = true) })
             }
-            confirmaBusqueda = false // Reset shouldFilter after filtering
-        }
-        else{
-            listaFiltrada = RegistroPoke
+            confirmaBusqueda = false
         }
     }
+
+    LaunchedEffect(key1 = RegistroPoke) {
+        listaFiltrada = RegistroPoke
+    }
+
+
+
 
     val alturaCampoBusqueda by animateFloatAsState(
         targetValue = if (campoBusqueda) 200f else 0f,
@@ -215,6 +228,8 @@ fun ListaRegistrados(
             BotonAtras()
         }
         Button(
+            colors = colores_boton,
+            shape = shape,
             onClick = {
                 if(!campoBusqueda){
                     textobusqueda = ""

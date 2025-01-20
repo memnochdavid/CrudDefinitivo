@@ -146,7 +146,6 @@ fun MuestraEquipo(
 
     LaunchedEffect(key1=confirmaBusqueda) {
         if (confirmaBusqueda) {
-            Log.d("IF", "$textobusqueda, $tipoBuscado1, $tipoBuscado2, $byFecha")
             if(tipoBuscado1.contains("Sin tipo")) tipoBuscado1=""
             if(tipoBuscado2.contains("Sin tipo")) tipoBuscado2=""
 
