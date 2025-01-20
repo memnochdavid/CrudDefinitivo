@@ -431,6 +431,7 @@ fun MuestraPalmares() {
             Text(
                 modifier = Modifier
                     .fillMaxHeight(0.1f)
+                    .padding(top = 20.dp)
                     .constrainAs(titulo) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -619,7 +620,7 @@ fun CombateCard(combate: Combate){
         ) {
             Text(
                 text = fecha_combate,
-                fontSize = 8.sp
+                fontSize = 12.sp
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -627,7 +628,7 @@ fun CombateCard(combate: Combate){
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth(),
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Vencedor")
             Text(text = UsuarioFromKey(combate.vencedor, refBBDD).nick)
