@@ -3,6 +3,7 @@ package com.david.cruddefinitivo
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -83,7 +84,7 @@ import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
-import com.david.cruddefinitivo.ui.theme.Purple40
+import com.david.cruddefinitivo.ui.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -136,9 +137,16 @@ fun MuestraEquipo(
     var byFecha by remember { mutableStateOf(false) }
     var listaFiltrada by remember { mutableStateOf(equipoPoke) }
 
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = Purple80,
+        contentColor = Color.White
+    )
 
-    LaunchedEffect(key1=confirmaBusqueda, key2 = equipoPoke) { // Trigger LaunchedEffect only when shouldFilter changes
+
+    LaunchedEffect(key1=confirmaBusqueda) {
         if (confirmaBusqueda) {
+            Log.d("IF", "$textobusqueda, $tipoBuscado1, $tipoBuscado2, $byFecha")
             if(tipoBuscado1.contains("Sin tipo")) tipoBuscado1=""
             if(tipoBuscado2.contains("Sin tipo")) tipoBuscado2=""
 
@@ -147,11 +155,12 @@ fun MuestraEquipo(
                         (tipoBuscado1.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado1, ignoreCase = true) }) &&
                         (tipoBuscado2.isEmpty() || pokemon.tipo.any { it.tag.contains(tipoBuscado2, ignoreCase = true) })
             }
-            confirmaBusqueda = false // Reset shouldFilter after filtering
+            confirmaBusqueda = false
         }
-        else{
-            listaFiltrada = equipoPoke
-        }
+    }
+
+    LaunchedEffect(key1 = equipoPoke) {
+        listaFiltrada = equipoPoke
     }
 
     val alturaCampoBusqueda by animateFloatAsState(
@@ -198,6 +207,7 @@ fun MuestraEquipo(
                                     val updatedEquipo = equipoPoke.filter { it.name != pokemon.name }
                                     //Log.d("MuestraEquipo", "Updated equipoPoke: ${updatedEquipo.map { it.name }}")
                                     equipo_lista.emit(updatedEquipo) // Emit the new list
+                                    listaFiltrada = updatedEquipo
                                     val updates = hashMapOf<String, Any>(
                                         "usuarios/$usuario_key/equipo" to updatedEquipo
                                     )
@@ -252,6 +262,8 @@ fun MuestraEquipo(
             BotonAtras()
         }
         Button(
+            shape = shape,
+            colors = colores_boton,
             onClick = {
                 if(!campoBusqueda){
                     textobusqueda = ""
@@ -260,6 +272,7 @@ fun MuestraEquipo(
                 }
                 campoBusqueda = !campoBusqueda
                 confirmaBusqueda = true
+                Log.d("Param.Busqueda", "$textobusqueda, $tipoBuscado1, $tipoBuscado2, $byFecha")
             },
             modifier = Modifier
                 .constrainAs(boton_busqueda) {
@@ -556,7 +569,15 @@ fun OrdenaByFecha(
 @Composable
 fun BotonAtras() {
     val context = LocalContext.current
-    Button(onClick = {
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = Purple80,
+        contentColor = Color.White
+    )
+    Button(
+        shape = shape,
+        colors = colores_boton,
+        onClick = {
         if (context is ComponentActivity) {
             context.finish()
         }

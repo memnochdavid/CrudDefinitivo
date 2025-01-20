@@ -57,6 +57,8 @@ import com.david.cruddefinitivo.Clase.PokemonTipoFB
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
+import com.david.cruddefinitivo.ui.theme.*
+import com.david.cruddefinitivo.ui.theme.Purple80
 import io.appwrite.models.InputFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -94,9 +96,16 @@ fun Registra() {
     val context = LocalContext.current
     var sesion = UsuarioFromKey(usuario_key, refBBDD)
     val tipoList = mutableListOf<PokemonTipoFB>()
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = Purple40,
+        contentColor = Color.White
+    )
+
     LaunchedEffect(key1 = tipoList) {
         tipoList
     }
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize(),
@@ -209,26 +218,28 @@ fun Registra() {
                     end.linkTo(parent.end)
                     bottom.linkTo(botones.top)
                 },
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceEvenly
         ){
             Estrellas(modifier = Modifier,puntuacion) { puntuacion = it }
         }
         Row(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
+                .fillMaxWidth()
                 .constrainAs(botones){
                     top.linkTo(estrellas.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 },
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ){
             Button(
                 modifier = Modifier
                     .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(10.dp),
+                shape = shape,
+                colors = colores_boton,
                 onClick = {
                     val identificador_poke = refBBDD.child("registrados").push().key
 
