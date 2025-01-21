@@ -75,7 +75,7 @@ class RegistraActivity : ComponentActivity() {
         }
     }
 }
-
+//
 @Composable
 fun Registra() {
     var newPokemon= PokemonFB()

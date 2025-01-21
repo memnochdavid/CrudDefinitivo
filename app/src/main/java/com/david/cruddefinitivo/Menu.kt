@@ -78,7 +78,7 @@ class MenuActivity : ComponentActivity() {
         }
     }
 }
-
+//
 @Composable
 fun Splash() {
     val context = LocalContext.current

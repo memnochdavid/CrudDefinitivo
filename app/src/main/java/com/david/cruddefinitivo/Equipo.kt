@@ -122,7 +122,7 @@ class EquipoActivity : ComponentActivity() {
         }
     }
 }
-
+//
 @Composable
 fun MuestraEquipo(
     modifier: Modifier = Modifier,

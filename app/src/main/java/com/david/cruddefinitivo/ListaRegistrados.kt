@@ -85,7 +85,7 @@ class ListaRegistradosActivity : ComponentActivity() {
         }
     }
 }
-
+//
 @Composable
 fun ListaRegistrados(
     modifier: Modifier = Modifier,
