@@ -84,6 +84,22 @@ class ListaRegistradosActivity : ComponentActivity() {
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        setContent {
+            LaunchedEffect(Unit) {
+                cargaRegistrados()
+            }
+            val registradosState by registrados_lista.collectAsState()
+            CrudDefinitivoTheme {
+                ListaRegistrados(
+                    modifier = Modifier
+                        .background(Purple40)
+                        .fillMaxSize(),
+                    registradosState = registradosState)
+            }
+        }
+    }
 }
 //
 @Composable

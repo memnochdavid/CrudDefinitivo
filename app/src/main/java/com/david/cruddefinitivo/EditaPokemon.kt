@@ -68,16 +68,6 @@ class EditaPokemonActivity : ComponentActivity() {
             }
         }
     }
-    override fun onResume() {
-        super.onResume()
-        val pokemon = intent.getSerializableExtra("pokemon") as PokemonFB
-        //enableEdgeToEdge()
-        setContent {
-            CrudDefinitivoTheme {
-                PokemonEdita(pokemon)
-            }
-        }
-    }
 }
 
 @Composable
@@ -104,6 +94,16 @@ fun PokemonEdita(pokemon: PokemonFB) {
     val tipoList = mutableListOf<PokemonTipoFB>()
     LaunchedEffect(key1 = tipoList) {
         tipoList
+    }
+    LaunchedEffect(Unit) {
+        nombre = newPokemon.name
+        numero = newPokemon.num.toString()
+        tipo1 = newPokemon.tipo[0]
+        if (newPokemon.tipo.size > 1) {
+            tipo2 = newPokemon.tipo[1]
+        }
+        link_foto = newPokemon.imagenFB
+        puntuacion = newPokemon.puntuacion.toInt()
     }
 
 
