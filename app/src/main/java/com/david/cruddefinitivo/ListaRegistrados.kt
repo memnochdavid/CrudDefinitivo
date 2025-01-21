@@ -1,6 +1,7 @@
 package com.david.cruddefinitivo
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -52,16 +52,16 @@ import com.david.cruddefinitivo.Clase.PokemonFB
 import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
-import com.david.cruddefinitivo.ui.theme.Pink40
 import com.david.cruddefinitivo.ui.theme.Purple40
-import com.david.cruddefinitivo.ui.theme.Purple80
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -103,13 +103,6 @@ fun ListaRegistrados(
     var listaFiltrada by remember { mutableStateOf(RegistroPoke) }
 
 
-    val shape = RoundedCornerShape(10.dp)
-    val colores_boton = ButtonDefaults.buttonColors(
-        containerColor = Purple80,
-        contentColor = Color.White
-    )
-
-
     LaunchedEffect(key1=confirmaBusqueda) {
         if (confirmaBusqueda) {
             if(tipoBuscado1.contains("Sin tipo")) tipoBuscado1=""
@@ -127,9 +120,6 @@ fun ListaRegistrados(
     LaunchedEffect(key1 = RegistroPoke) {
         listaFiltrada = RegistroPoke
     }
-
-
-
 
     val alturaCampoBusqueda by animateFloatAsState(
         targetValue = if (campoBusqueda) 200f else 0f,
@@ -182,6 +172,21 @@ fun ListaRegistrados(
                                         .addOnFailureListener {
                                             // Handle error
                                         }
+                                    // Delete from Appwrite
+                                    val id_imagen = pokemon.id_imagen
+                                    if (id_imagen != null) {
+                                        try {
+                                            withContext(Dispatchers.IO) {
+                                                storage.deleteFile(
+                                                    bucketId = appwrite_bucket,
+                                                    fileId = id_imagen
+                                                )
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("DeleteError", "Error deleting Appwrite file: ${e.message}")
+                                        }
+                                    }
+
                                 }
                                 true
                             } else {
@@ -226,8 +231,6 @@ fun ListaRegistrados(
             BotonAtras()
         }
         Button(
-            colors = colores_boton,
-            shape = shape,
             onClick = {
                 if(!campoBusqueda){
                     textobusqueda = ""
@@ -255,7 +258,7 @@ fun ListaRegistrados(
         if (campoBusqueda || alturaCampoBusqueda > 0f) {
             Row (
                 modifier = Modifier
-                    .background(Pink40)
+                    .background(colorResource(R.color.rojo_primario))
                     .constrainAs(layoutBusqueda) {
                         //top.linkTo(parent.top)
                         start.linkTo(parent.start)

@@ -47,7 +47,7 @@ import io.appwrite.services.Storage
 var refBBDD by mutableStateOf<DatabaseReference>(FirebaseDatabase.getInstance().reference)
 //para appwrite
 val appwrite_project = "674f4655000119d78457"
-val appwrite_bucket = "674f4717002b4ea1e2c2"
+val appwrite_bucket = "678f9ce30010f9cff56b"
 
 val client = Client()
     .setEndpoint("https://cloud.appwrite.io/v1")

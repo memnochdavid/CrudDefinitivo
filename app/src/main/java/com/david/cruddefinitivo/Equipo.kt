@@ -84,9 +84,11 @@ import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
-import com.david.cruddefinitivo.ui.theme.*
+import com.david.cruddefinitivo.ui.theme.Purple40
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 var equipo_lista: MutableStateFlow<List<PokemonFB>> = MutableStateFlow(emptyList())
 var registrados_lista: MutableStateFlow<List<PokemonFB>> = MutableStateFlow(emptyList())
@@ -136,12 +138,6 @@ fun MuestraEquipo(
     var tipoBuscado2 by remember { mutableStateOf("") }
     var byFecha by remember { mutableStateOf(false) }
     var listaFiltrada by remember { mutableStateOf(equipoPoke) }
-
-    val shape = RoundedCornerShape(10.dp)
-    val colores_boton = ButtonDefaults.buttonColors(
-        containerColor = Purple80,
-        contentColor = Color.White
-    )
 
 
     LaunchedEffect(key1=confirmaBusqueda) {
@@ -217,6 +213,20 @@ fun MuestraEquipo(
                                         .addOnFailureListener {
                                             // Handle error
                                         }
+                                    //se borra la foto de appwrite
+                                    val id_imagen = pokemon.id_imagen
+                                    if (id_imagen != null) {
+                                        try {
+                                            withContext(Dispatchers.IO) {
+                                                storage.deleteFile(
+                                                    bucketId = appwrite_bucket,
+                                                    fileId = id_imagen
+                                                )
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("DeleteError", "Error deleting Appwrite file: ${e.message}")
+                                        }
+                                    }
                                 }
                                 true
                             } else {
@@ -261,8 +271,6 @@ fun MuestraEquipo(
             BotonAtras()
         }
         Button(
-            shape = shape,
-            colors = colores_boton,
             onClick = {
                 if(!campoBusqueda){
                     textobusqueda = ""
@@ -271,7 +279,6 @@ fun MuestraEquipo(
                 }
                 campoBusqueda = !campoBusqueda
                 confirmaBusqueda = true
-                Log.d("Param.Busqueda", "$textobusqueda, $tipoBuscado1, $tipoBuscado2, $byFecha")
             },
             modifier = Modifier
                 .constrainAs(boton_busqueda) {
@@ -291,7 +298,7 @@ fun MuestraEquipo(
         if (campoBusqueda || alturaCampoBusqueda > 0f) {
             Row (
                 modifier = Modifier
-                    .background(Pink40)
+                    .background(colorResource(R.color.rojo_primario))
                     .constrainAs(layoutBusqueda) {
                         //top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -568,15 +575,7 @@ fun OrdenaByFecha(
 @Composable
 fun BotonAtras() {
     val context = LocalContext.current
-    val shape = RoundedCornerShape(10.dp)
-    val colores_boton = ButtonDefaults.buttonColors(
-        containerColor = Purple80,
-        contentColor = Color.White
-    )
-    Button(
-        shape = shape,
-        colors = colores_boton,
-        onClick = {
+    Button(onClick = {
         if (context is ComponentActivity) {
             context.finish()
         }
