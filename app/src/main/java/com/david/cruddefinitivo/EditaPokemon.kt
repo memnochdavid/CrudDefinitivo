@@ -1,5 +1,6 @@
 package com.david.cruddefinitivo
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -54,10 +55,21 @@ import io.appwrite.models.InputFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
 class EditaPokemonActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val pokemon = intent.getSerializableExtra("pokemon") as PokemonFB
+        //enableEdgeToEdge()
+        setContent {
+            CrudDefinitivoTheme {
+                PokemonEdita(pokemon)
+            }
+        }
+    }
+    override fun onResume() {
+        super.onResume()
         val pokemon = intent.getSerializableExtra("pokemon") as PokemonFB
         //enableEdgeToEdge()
         setContent {
@@ -89,7 +101,6 @@ fun PokemonEdita(pokemon: PokemonFB) {
     )
     var scopeUser = rememberCoroutineScope()
     val context = LocalContext.current
-    var sesion = UsuarioFromKey(usuario_key, refBBDD)
     val tipoList = mutableListOf<PokemonTipoFB>()
     LaunchedEffect(key1 = tipoList) {
         tipoList
@@ -239,7 +250,6 @@ fun PokemonEdita(pokemon: PokemonFB) {
                     val inputStream = context.contentResolver.openInputStream(selectedImageUri!!)
                     scopeUser.launch {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
                         try{
-                            var equipo_sesion = sesion.equipo
 
 
                             val file = inputStream.use { input ->
@@ -295,7 +305,7 @@ fun PokemonEdita(pokemon: PokemonFB) {
 
                 }
             ) {
-                Text("Registrar")
+                Text("Guardar")
             }
             BotonAtras()
         }
