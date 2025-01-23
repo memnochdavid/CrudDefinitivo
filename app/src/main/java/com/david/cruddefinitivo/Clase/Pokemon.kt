@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,7 @@ data class PokemonFB(
     var name: String="",
     var tipo: List<PokemonTipoFB> = mutableListOf(),
     var num:Int=0,
+    var entrenador:String="",
     var puntuacion:Float=0f,
     var fecha_captura:String="",
     var stability:Int=0
@@ -64,9 +66,10 @@ data class PokemonFB(
         name: String,
         tipo: List<PokemonTipoFB>,
         num:Int,
+        entrenador:String,
         puntuacion:Float,
         fecha_captura:String,
-    ) : this(null,null, null, name, tipo,num,puntuacion,fecha_captura)
+    ) : this(null,null, null, name, tipo,num, entrenador,puntuacion,fecha_captura)
     init{
         fecha_captura=getCurrentDate()
     }

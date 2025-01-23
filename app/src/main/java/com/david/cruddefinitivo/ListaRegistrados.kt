@@ -140,6 +140,7 @@ fun ListaRegistrados(
             fontWeight = FontWeight.Bold,
             text = "REGISTRADOS"
         )
+        val equipo_usuario = UsuarioFromKey(usuario_key, refBBDD).equipo
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,35 +157,40 @@ fun ListaRegistrados(
                 key = { pokemon -> pokemon.name } // Use a unique and stable key
             ) { pokemon ->
                 pokemon.id?.let { pokemon_id ->
+
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = { it ->
                             if (it == SwipeToDismissBoxValue.EndToStart) {
                                 scope.launch {
-                                    val updatedRegistrados = RegistroPoke.filter { it.id != pokemon.id }
-                                    registrados_lista.emit(updatedRegistrados) // Emit the new list
-                                    listaFiltrada = updatedRegistrados
-                                    refBBDD.child("registrados").child(pokemon_id).removeValue()
-                                        .addOnSuccessListener {
-                                            Toast.makeText(context, "Has liberado a ${pokemon.name}", Toast.LENGTH_SHORT).show()
-                                        }
-                                        .addOnFailureListener {
-                                            // Handle error
-                                        }
-                                    // Delete from Appwrite
-                                    val id_imagen = pokemon.id_imagen
-                                    if (id_imagen != null) {
-                                        try {
-                                            withContext(Dispatchers.IO) {
-                                                storage.deleteFile(
-                                                    bucketId = appwrite_bucket,
-                                                    fileId = id_imagen
-                                                )
+                                    if (pokemon in equipo_usuario) {
+                                        Toast.makeText(context, "No puedes liberar a ${pokemon.name} mientras esté en tu equipo", Toast.LENGTH_SHORT).show()
+                                    }
+                                    else{
+                                        val updatedRegistrados = RegistroPoke.filter { it.id != pokemon.id }
+                                        registrados_lista.emit(updatedRegistrados) // Emit the new list
+                                        listaFiltrada = updatedRegistrados
+                                        refBBDD.child("registrados").child(pokemon_id).removeValue()
+                                            .addOnSuccessListener {
+                                                Toast.makeText(context, "Has liberado a ${pokemon.name}", Toast.LENGTH_SHORT).show()
                                             }
-                                        } catch (e: Exception) {
-                                            Log.e("DeleteError", "Error deleting Appwrite file: ${e.message}")
+                                            .addOnFailureListener {
+                                                // Handle error
+                                            }
+                                        // Delete from Appwrite
+                                        val id_imagen = pokemon.id_imagen
+                                        if (id_imagen != null) {
+                                            try {
+                                                withContext(Dispatchers.IO) {
+                                                    storage.deleteFile(
+                                                        bucketId = appwrite_bucket,
+                                                        fileId = id_imagen
+                                                    )
+                                                }
+                                            } catch (e: Exception) {
+                                                Log.e("DeleteError", "Error deleting Appwrite file: ${e.message}")
+                                            }
                                         }
                                     }
-
                                 }
                                 true
                             } else {
@@ -192,25 +198,30 @@ fun ListaRegistrados(
                             }
                         }
                     )
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        enableDismissFromEndToStart = true,
-                        enableDismissFromStartToEnd = false,
-                        backgroundContent = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Borrar",
-                                    tint = Color.Black
-                                )
+                    if (pokemon !in equipo_usuario) {
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            enableDismissFromEndToStart = true,
+                            enableDismissFromStartToEnd = false,
+                            backgroundContent = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 20.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Borrar",
+                                        tint = Color.Black
+                                    )
+                                }
                             }
+                        ) {
+                            PokeCard(pokemon)
                         }
-                    ) {
+                    }
+                    else{
                         PokeCard(pokemon)
                     }
                 }
@@ -286,36 +297,18 @@ fun ListaRegistrados(
     }
 }
 
-fun observaRegistrados(): Flow<List<PokemonFB>> {
-    return callbackFlow {
-        val listener = refBBDD.child("registrados")
-            .addValueEventListener(object :
-                ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val registrados = mutableListOf<PokemonFB>()
-                    for (childSnapshot in snapshot.children) {
-                        val pokemon = childSnapshot.getValue(PokemonFB::class.java)
-                        if (pokemon != null) {
-                            registrados.add(pokemon)
-                        }
-                    }
-                    trySend(registrados)
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    close(error.toException())
-                }
-            })
-        awaitClose { refBBDD.removeEventListener(listener) }
-    }
-}
 
 fun cargaRegistrados(){
     refBBDD.child("registrados").get().addOnSuccessListener { dataSnapshot ->
         val pokemonList = mutableListOf<PokemonFB>()
         for (childSnapshot in dataSnapshot.children) {
             val pokemon = childSnapshot.getValue(PokemonFB::class.java)
-            pokemon?.let { pokemonList.add(it) }
+            if (pokemon != null) {
+                if(pokemon.entrenador.equals(usuario_key)){
+                    pokemon.let { pokemonList.add(it) }
+                }
+            }
         }
         registrados_lista.value = pokemonList
     }.addOnFailureListener { exception ->

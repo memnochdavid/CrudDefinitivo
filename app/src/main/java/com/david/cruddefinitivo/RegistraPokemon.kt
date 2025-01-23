@@ -1,5 +1,7 @@
 package com.david.cruddefinitivo
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -51,6 +53,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import coil.compose.AsyncImage
 import com.david.cruddefinitivo.Clase.PokemonFB
 import com.david.cruddefinitivo.Clase.PokemonTipoFB
@@ -63,6 +66,8 @@ import io.appwrite.models.InputFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 class RegistraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,6 +138,14 @@ fun Registra() {
                 )
             }
             else{
+                val drawable = ResourcesCompat.getDrawable(context.resources, R.drawable.pokeball, null)
+                val bitmap = (drawable as BitmapDrawable).bitmap
+                val file = File(context.cacheDir, "pokeball.png")
+                val outputStream = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+                selectedImageUri = Uri.fromFile(file)
                 Image(
                     painter = painterResource(R.drawable.pokeball),
                     contentDescription = "Pokemon",
@@ -146,8 +159,8 @@ fun Registra() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp,vertical = 15.dp)
-                .constrainAs(text_inputs){
+                .padding(horizontal = 10.dp, vertical = 15.dp)
+                .constrainAs(text_inputs) {
                     top.linkTo(foto.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -198,7 +211,7 @@ fun Registra() {
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .fillMaxWidth()
-                .constrainAs(spinner_tipos){
+                .constrainAs(spinner_tipos) {
                     top.linkTo(text_inputs.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -212,7 +225,7 @@ fun Registra() {
         Row(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
-                .constrainAs(estrellas){
+                .constrainAs(estrellas) {
                     top.linkTo(spinner_tipos.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -226,7 +239,7 @@ fun Registra() {
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .fillMaxWidth()
-                .constrainAs(botones){
+                .constrainAs(botones) {
                     top.linkTo(estrellas.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -243,18 +256,12 @@ fun Registra() {
                 onClick = {
                     val identificador_poke = refBBDD.child("registrados").push().key
 
-                    //subimos la imagen a appwrite storage y los datos a firebase
-                    //var identificadorAppWrite = identificador_poke?.substring(1, 20) ?: "" // coge el identificador y lo adapta a appwrite
-
                     var identificadorAppWrite = refBBDD.child("registrados").push().key!!.substring(1, 20) ?: ""
                     //necesario para crear un archivo temporal con la imagen
 
                     val inputStream = context.contentResolver.openInputStream(selectedImageUri!!)
                     scopeUser.launch {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
                         try{
-                            var equipo_sesion = sesion.equipo
-
-
                             val file = inputStream.use { input ->
                                 val tempFile = kotlin.io.path.createTempFile(identificadorAppWrite).toFile()
                                 if (input != null) {
@@ -288,6 +295,7 @@ fun Registra() {
                                 name = nombre,
                                 tipo = tipoList,
                                 num = numero.toInt(),
+                                entrenador = usuario_key,
                                 puntuacion = puntuacion.toFloat()
                             )
                             refBBDD.child("registrados").child(identificador_poke!!).setValue(newPokemon)

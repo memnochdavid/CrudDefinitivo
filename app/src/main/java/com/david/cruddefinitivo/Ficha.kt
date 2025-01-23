@@ -104,7 +104,7 @@ class FichaPokemonActivity : ComponentActivity() {
 
 @Composable
 fun PokemonFicha(pokemon: PokemonFB) {
-    val context = LocalContext.current
+    var context = LocalContext.current
     val num=pokemon.num
     var numero = "${(num)}"
     if(numero.length == 1) numero = "00${(num)}"
@@ -186,9 +186,12 @@ fun PokemonFicha(pokemon: PokemonFB) {
                     ){
                         Button(
                             onClick = {
-                                val intent = Intent(context, EditaPokemonActivity::class.java)
-                                intent.putExtra("pokemon", pokemon)
-                                context.startActivity(intent)
+                                if(pokemon.entrenador.equals(usuario_key)){
+                                    val intent = Intent(context, EditaPokemonActivity::class.java)
+                                    intent.putExtra("pokemon", pokemon)
+                                    context.startActivity(intent)
+                                }
+                                else Toast.makeText(context, "No eres el entrenador de este pokemon", Toast.LENGTH_SHORT).show()
                             },
                             elevation = ButtonDefaults.buttonElevation(
                                 defaultElevation = 10.dp

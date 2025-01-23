@@ -208,7 +208,7 @@ fun MuestraEquipo(
                                     )
                                     refBBDD.updateChildren(updates)
                                         .addOnSuccessListener {
-                                            Toast.makeText(context, "Has liberado a ${pokemon.name}", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "${pokemon.name} ya no está en tu Equipo", Toast.LENGTH_SHORT).show()
                                         }
                                         .addOnFailureListener {
                                             // Handle error

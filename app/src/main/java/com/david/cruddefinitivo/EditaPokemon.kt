@@ -1,6 +1,8 @@
 package com.david.cruddefinitivo
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -44,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.content.res.ResourcesCompat
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.david.cruddefinitivo.Clase.EstrellasVisualizacion
@@ -55,6 +58,8 @@ import io.appwrite.models.InputFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.io.Serializable
 
 class EditaPokemonActivity : ComponentActivity() {
@@ -136,6 +141,14 @@ fun PokemonEdita(pokemon: PokemonFB) {
                 )
             }
             else{
+                val drawable = ResourcesCompat.getDrawable(context.resources, R.drawable.pokeball, null)
+                val bitmap = (drawable as BitmapDrawable).bitmap
+                val file = File(context.cacheDir, "pokeball.png")
+                val outputStream = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+                selectedImageUri = Uri.fromFile(file)
                 AsyncImage(
                     model = pokemon.imagenFB,
                     contentDescription = "Selected image",
