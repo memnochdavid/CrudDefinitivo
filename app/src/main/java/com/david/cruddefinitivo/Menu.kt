@@ -168,7 +168,7 @@ fun Splash() {
                 },
                 modifier = modifier
             ) {
-                Text("Registrados")
+                Text("Pokes Registrados")
             }
             Button(
                 shape = shape,
@@ -188,7 +188,7 @@ fun Splash() {
                 },
                 modifier = modifier
             ) {
-                Text("Palmarés")
+                Text("Mi Palmarés")
             }
 
         }
