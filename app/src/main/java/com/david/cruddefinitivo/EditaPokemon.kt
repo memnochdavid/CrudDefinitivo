@@ -104,6 +104,8 @@ fun PokemonEdita(pokemon: PokemonFB) {
         }
         link_foto = newPokemon.imagenFB
         puntuacion = newPokemon.puntuacion.toInt()
+
+        cargaRegistrados()
     }
 
 

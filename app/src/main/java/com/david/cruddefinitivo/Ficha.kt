@@ -67,10 +67,16 @@ import androidx.wear.compose.material.Icon
 import coil.compose.rememberAsyncImagePainter
 import com.david.cruddefinitivo.Clase.EstrellasVisualizacion
 import com.david.cruddefinitivo.Clase.PokemonFB
+import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumToDrawableFB
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.GenericTypeIndicator
 import kotlinx.coroutines.delay
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class FichaPokemonActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -326,4 +332,3 @@ fun MuestraDatos(pokemon: PokemonFB, context: Context){
         }
     }
 }
-
