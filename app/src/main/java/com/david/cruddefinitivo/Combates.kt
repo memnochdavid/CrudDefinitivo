@@ -33,6 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,6 +74,7 @@ import com.david.cruddefinitivo.Clase.PokeCard
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.fetchAllUsers
 import com.david.cruddefinitivo.ui.theme.Purple40
+import com.david.cruddefinitivo.ui.theme.color_planta
 import com.google.firebase.database.DatabaseReference
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Serializable
@@ -301,12 +303,19 @@ fun RegistraCombate(){
     var click_dummy by remember { mutableStateOf("") }
     var ganador by remember { mutableStateOf(UserFb()) }
     val context= LocalContext.current
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = color_planta,
+        contentColor = Color.White
+    )
+
     Column(
         modifier = Modifier
             .background(Purple40)
             .padding(top = 16.dp)
             .fillMaxSize(),
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Top
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserCard(combatiente1, 2,onUserClick = { selectedUser ->
             click_dummy = selectedUser.nick
@@ -323,13 +332,14 @@ fun RegistraCombate(){
             click_dummy = selectedUser.nick
         })
         Text(text = "Vencedor")
-        SeleccionaWinner( modifier = Modifier, lista_usuarios = listOf(combatiente1,combatiente2)) {
+        SeleccionaWinner( modifier = Modifier.align(Alignment.CenterHorizontally), lista_usuarios = listOf(combatiente1,combatiente2)) {
             ganador = it
         }
         Button(
             modifier = Modifier
                 .padding(vertical = 8.dp),
-            shape = RoundedCornerShape(10.dp),
+            shape = shape,
+            colors = colores_boton,
             onClick = {
                 var combate = Combate(combatiente1.key!!, combatiente2.key!!, ganador.key!!)
                 //Log.d("combate", combate.toString())

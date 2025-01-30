@@ -99,11 +99,10 @@ fun Registra() {
     )
     var scopeUser = rememberCoroutineScope()
     val context = LocalContext.current
-    var sesion = UsuarioFromKey(usuario_key, refBBDD)
     val tipoList = mutableListOf<PokemonTipoFB>()
     val shape = RoundedCornerShape(10.dp)
     val colores_boton = ButtonDefaults.buttonColors(
-        containerColor = Purple40,
+        containerColor = color_planta,
         contentColor = Color.White
     )
 
@@ -428,78 +427,3 @@ fun Estrellas(
     }
 }
 
-
-/*
-val identificador_poke = refBBDD.child("equipo").child("pokemon").push().key
-
-                    //subimos la imagen a appwrite storage y los datos a firebase
-                    //var identificadorAppWrite = identificador_poke?.substring(1, 20) ?: "" // coge el identificador y lo adapta a appwrite
-
-                    var identificadorAppWrite = refBBDD.child("equipo").child("pokemon").push().key!!.substring(1, 20) ?: ""
-                    //necesario para crear un archivo temporal con la imagen
-
-                    val inputStream = context.contentResolver.openInputStream(selectedImageUri!!)
-                    scopeUser.launch {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
-                        try{
-                            var equipo_sesion = sesion.equipo
-
-
-                            val file = inputStream.use { input ->
-                                val tempFile = kotlin.io.path.createTempFile(identificadorAppWrite).toFile()
-                                if (input != null) {
-                                    tempFile.outputStream().use { output ->
-                                        input.copyTo(output)
-                                    }
-                                }
-                                InputFile.fromFile(tempFile) // tenemos un archivo temporal con la imagen
-                            }
-
-                            withContext(Dispatchers.IO) {
-                                //se sube la imagen a appwrite
-                                storage.createFile(
-                                    bucketId = appwrite_bucket,
-                                    fileId = identificadorAppWrite,
-                                    file = file
-                                )
-                            }
-                            link_foto = "https://cloud.appwrite.io/v1/storage/buckets/$appwrite_bucket/files/$identificadorAppWrite/preview?project=$appwrite_project&output=png"
-
-
-                            tipoList.add(tipo1)
-                            if (tipo2 != PokemonTipoFB.NULL) {
-                                tipoList.add(tipo2)
-                            }
-
-                            newPokemon = PokemonFB(
-                                id = identificador_poke,
-                                imagenFB = link_foto,
-                                id_imagen = identificadorAppWrite,
-                                name = nombre,
-                                tipo = tipoList,
-                                num = numero.toInt(),
-                                puntuacion = puntuacion.toFloat()
-                            )
-                            if(equipo_sesion.size<6){
-                                equipo_sesion.add(newPokemon)
-                                sesion.equipo = equipo_sesion
-
-
-                                //subimos los datos a firebase
-                                refBBDD.child("usuarios").child(sesion.key!!).setValue(sesion)
-                            }
-                            else{
-                                Toast.makeText(context, "Ya hay 6 Pokémon en tu equipo!", Toast.LENGTH_SHORT).show()
-                            }
-
-
-
-                        }catch (e: Exception){
-                            Log.e("UploadError", "Error al subir la imagen: ${e.message}")
-                        }finally {
-                            Toast.makeText(context, "${newPokemon.name} registrado correctamente", Toast.LENGTH_SHORT).show()
-                            if (context is ComponentActivity) {
-                                context.finish()
-                            }
-                        }
-                    }
-*/

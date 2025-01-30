@@ -85,6 +85,7 @@ import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
 import com.david.cruddefinitivo.ui.theme.Purple40
+import com.david.cruddefinitivo.ui.theme.color_fuego
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -280,12 +281,21 @@ fun MuestraEquipo(
 
 @Composable
 fun BotonAtras() {
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = color_fuego,
+        contentColor = Color.White
+    )
     val context = LocalContext.current
-    Button(onClick = {
-        if (context is ComponentActivity) {
-            context.finish()
-        }
-    }) {
+    Button(
+        onClick = {
+            if (context is ComponentActivity) {
+                context.finish()
+            }
+        },
+        shape = shape,
+        colors = colores_boton,
+    ) {
         Text("Atras")
     }
 }

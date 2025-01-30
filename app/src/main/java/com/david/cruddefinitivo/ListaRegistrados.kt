@@ -74,8 +74,7 @@ import com.david.cruddefinitivo.Clase.UserFb
 import com.david.cruddefinitivo.Clase.UsuarioFromKey
 import com.david.cruddefinitivo.Clase.enumTipoToColorTipo
 import com.david.cruddefinitivo.ui.theme.CrudDefinitivoTheme
-import com.david.cruddefinitivo.ui.theme.Pink40
-import com.david.cruddefinitivo.ui.theme.Purple40
+import com.david.cruddefinitivo.ui.theme.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -123,6 +122,11 @@ fun ListaRegistrados(
     var byPuntuacion by remember { mutableStateOf(false) }
     var listaFiltrada by remember { mutableStateOf(RegistroPoke) }
 
+    val shape = RoundedCornerShape(10.dp)
+    val colores_boton = ButtonDefaults.buttonColors(
+        containerColor = color_planta,
+        contentColor = Color.White
+    )
 
     LaunchedEffect(key1 = confirmaBusqueda) {
         if (confirmaBusqueda) {
@@ -194,6 +198,9 @@ fun ListaRegistrados(
                                     if (pokemon in equipo_usuario) {
                                         Toast.makeText(context, "No puedes liberar a ${pokemon.name} mientras esté en tu equipo", Toast.LENGTH_SHORT).show()
                                     }
+                                    else if(!pokemon.entrenador.equals(usuario_key)){
+                                        Toast.makeText(context, "No puedes liberar a Pokémon que no es tuyo.", Toast.LENGTH_SHORT).show()
+                                    }
                                     else{
                                         val updatedRegistrados = RegistroPoke.filter { it.id != pokemon.id }
                                         registrados_lista.emit(updatedRegistrados) // Emit the new list
@@ -227,7 +234,7 @@ fun ListaRegistrados(
                             }
                         }
                     )
-                    if (pokemon !in equipo_usuario) {
+                    if (pokemon !in equipo_usuario && pokemon.entrenador.equals(usuario_key)) {
                         SwipeToDismissBox(
                             state = dismissState,
                             enableDismissFromEndToStart = true,
@@ -289,6 +296,9 @@ fun ListaRegistrados(
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 10.dp
             ),
+            colors = colores_boton,
+            shape = shape,
+
         ) {
             Text(text = "Filtrar")
         }
@@ -296,7 +306,7 @@ fun ListaRegistrados(
         if (campoBusqueda || alturaCampoBusqueda > 0f) {
             Row (
                 modifier = Modifier
-                    .background(Pink40)
+                    .background(color_dragon)
                     .constrainAs(layoutBusqueda) {
                         //top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -334,9 +344,9 @@ fun cargaRegistrados(){
         for (childSnapshot in dataSnapshot.children) {
             val pokemon = childSnapshot.getValue(PokemonFB::class.java)
             if (pokemon != null) {
-                if(pokemon.entrenador.equals(usuario_key)){
+                //if(pokemon.entrenador.equals(usuario_key)){
                     pokemon.let { pokemonList.add(it) }
-                }
+                //}
             }
         }
         registrados_lista.value = pokemonList

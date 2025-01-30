@@ -73,14 +73,14 @@ class MenuActivity : ComponentActivity() {
                 }
             }
             CrudDefinitivoTheme(){
-                Splash()
+                Menu()
             }
         }
     }
 }
 //
 @Composable
-fun Splash() {
+fun Menu() {
     val context = LocalContext.current
     val shape = RoundedCornerShape(10.dp)
     val modifier = Modifier

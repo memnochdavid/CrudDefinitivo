@@ -184,20 +184,22 @@ fun PokemonFicha(pokemon: PokemonFB) {
                             },
                         horizontalArrangement =  Arrangement.Center
                     ){
-                        Button(
-                            onClick = {
-                                if(pokemon.entrenador.equals(usuario_key)){
-                                    val intent = Intent(context, EditaPokemonActivity::class.java)
-                                    intent.putExtra("pokemon", pokemon)
-                                    context.startActivity(intent)
-                                }
-                                else Toast.makeText(context, "No eres el entrenador de este pokemon", Toast.LENGTH_SHORT).show()
-                            },
-                            elevation = ButtonDefaults.buttonElevation(
-                                defaultElevation = 10.dp
-                            ),
-                        ) {
-                            Text(text = "Editar")
+                        if(pokemon.entrenador.equals(usuario_key)){
+                            Button(
+                                onClick = {
+                                    if(pokemon.entrenador.equals(usuario_key)){
+                                        val intent = Intent(context, EditaPokemonActivity::class.java)
+                                        intent.putExtra("pokemon", pokemon)
+                                        context.startActivity(intent)
+                                    }
+                                    else Toast.makeText(context, "No eres el entrenador de este pokemon", Toast.LENGTH_SHORT).show()
+                                },
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 10.dp
+                                ),
+                            ) {
+                                Text(text = "Editar")
+                            }
                         }
                         BotonAtras()
                     }
